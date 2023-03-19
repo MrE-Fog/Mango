@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct MGSettingView: View {
-        
+struct MGSettingsView: View {
+            
     var body: some View {
         NavigationStack {
             Form {

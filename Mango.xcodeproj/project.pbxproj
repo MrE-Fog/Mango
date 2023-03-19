@@ -14,6 +14,7 @@
 		702D9099299FA40600B83324 /* XrayTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 702D9090299FA40600B83324 /* XrayTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7069E00C29ADE79C0012C435 /* XrayKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7069E00B29ADE79C0012C435 /* XrayKit */; };
 		7069E01F29ADEAA30012C435 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 702D9093299FA40600B83324 /* PacketTunnelProvider.swift */; };
+		706A6D6829C6AEAA00523A07 /* MGConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */; };
 		706DB6B929B9DFBC002F22C7 /* MGConfigurationFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6B829B9DFBC002F22C7 /* MGConfigurationFormat.swift */; };
 		706DB6BB29B9DFCE002F22C7 /* MGConfigurationLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BA29B9DFCE002F22C7 /* MGConfigurationLocation.swift */; };
 		706DB6BD29B9DFE3002F22C7 /* MGConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */; };
@@ -23,7 +24,6 @@
 		706DB6C929BACC14002F22C7 /* MGConfigurationListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6C829BACC14002F22C7 /* MGConfigurationListManager.swift */; };
 		706DB6CB29BAE954002F22C7 /* MGConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6CA29BAE954002F22C7 /* MGConfigurationView.swift */; };
 		706DB6CC29BAEE38002F22C7 /* MGConfigurationFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6B829B9DFBC002F22C7 /* MGConfigurationFormat.swift */; };
-		706DB6CD29BAEE38002F22C7 /* MGConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */; };
 		708B380329B0937600E24312 /* MGSniffingSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708B380229B0937600E24312 /* MGSniffingSettingView.swift */; };
 		708B380629B0AA4200E24312 /* MGAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708B380529B0AA4200E24312 /* MGAssetViewModel.swift */; };
 		708B380829B0AA6200E24312 /* MGAssetSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708B380729B0AA6200E24312 /* MGAssetSettingView.swift */; };
@@ -56,7 +56,7 @@
 		70DE0D6E29A6155C00B3E343 /* MGPresentedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D6D29A6155C00B3E343 /* MGPresentedButton.swift */; };
 		70DE0D7029A62A5800B3E343 /* MGPacketTunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D6F29A62A5800B3E343 /* MGPacketTunnelManager.swift */; };
 		70DE0D7329A62C4E00B3E343 /* MGHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D7229A62C4E00B3E343 /* MGHomeView.swift */; };
-		70DE0D7829A6306100B3E343 /* MGSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D7729A6306100B3E343 /* MGSettingView.swift */; };
+		70DE0D7829A6306100B3E343 /* MGSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D7729A6306100B3E343 /* MGSettingsView.swift */; };
 		70F82CB629C2E6B40072B334 /* MGContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CB529C2E6B40072B334 /* MGContentView.swift */; };
 /* End PBXBuildFile section */
 
@@ -152,7 +152,7 @@
 		70DE0D6D29A6155C00B3E343 /* MGPresentedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGPresentedButton.swift; sourceTree = "<group>"; };
 		70DE0D6F29A62A5800B3E343 /* MGPacketTunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGPacketTunnelManager.swift; sourceTree = "<group>"; };
 		70DE0D7229A62C4E00B3E343 /* MGHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGHomeView.swift; sourceTree = "<group>"; };
-		70DE0D7729A6306100B3E343 /* MGSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGSettingView.swift; sourceTree = "<group>"; };
+		70DE0D7729A6306100B3E343 /* MGSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGSettingsView.swift; sourceTree = "<group>"; };
 		70F82CB529C2E6B40072B334 /* MGContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGContentView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -191,7 +191,6 @@
 		706DB6B729B9DFAB002F22C7 /* Subscribe */ = {
 			isa = PBXGroup;
 			children = (
-				706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */,
 				706DB6B829B9DFBC002F22C7 /* MGConfigurationFormat.swift */,
 				706DB6BA29B9DFCE002F22C7 /* MGConfigurationLocation.swift */,
 				706DB6C529BAC4AE002F22C7 /* List */,
@@ -325,6 +324,7 @@
 			children = (
 				70CEB89229A0C7BA003436C2 /* MGConstant.swift */,
 				702D9089299B58A400B83324 /* MGNotification.swift */,
+				706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -343,7 +343,7 @@
 		70DE0D7629A6300100B3E343 /* Setting */ = {
 			isa = PBXGroup;
 			children = (
-				70DE0D7729A6306100B3E343 /* MGSettingView.swift */,
+				70DE0D7729A6306100B3E343 /* MGSettingsView.swift */,
 				70C9EDD72951587D00B6995B /* MGResetView.swift */,
 				70B89C3129C1A8F9003DA577 /* Network */,
 				70B89C2729C19D27003DA577 /* Log */,
@@ -467,8 +467,8 @@
 				7069E01F29ADEAA30012C435 /* PacketTunnelProvider.swift in Sources */,
 				70CEB89929A30C79003436C2 /* MGConstant.swift in Sources */,
 				70B89C2129C17EE2003DA577 /* MGSniffingModel.swift in Sources */,
-				706DB6CD29BAEE38002F22C7 /* MGConfiguration.swift in Sources */,
 				70B89C3429C1A918003DA577 /* MGNetworkModel.swift in Sources */,
+				706A6D6829C6AEAA00523A07 /* MGConfiguration.swift in Sources */,
 				706DB6CC29BAEE38002F22C7 /* MGConfigurationFormat.swift in Sources */,
 				70B89C2A29C19D49003DA577 /* MGLogModel.swift in Sources */,
 				708B386129B81DDB00E24312 /* MGNotification.swift in Sources */,
@@ -493,7 +493,7 @@
 				70B89C2C29C19E9C003DA577 /* MGLogViewModel.swift in Sources */,
 				70B89C2629C198E3003DA577 /* MGAssetEntranceView.swift in Sources */,
 				706DB6BD29B9DFE3002F22C7 /* MGConfiguration.swift in Sources */,
-				70DE0D7829A6306100B3E343 /* MGSettingView.swift in Sources */,
+				70DE0D7829A6306100B3E343 /* MGSettingsView.swift in Sources */,
 				70DE0D6E29A6155C00B3E343 /* MGPresentedButton.swift in Sources */,
 				70B89C3629C1A9C6003DA577 /* MGNetworkViewModel.swift in Sources */,
 				70B89C2029C17EE2003DA577 /* MGSniffingModel.swift in Sources */,
