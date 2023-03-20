@@ -199,15 +199,15 @@ public enum MGConfigurationEncryption: String, Identifiable, CustomStringConvert
     public var description: String {
         switch self {
         case .aes_128_gcm:
-            return "aes-128-gcm"
+            return "AES-128-GCM"
         case .chacha20_poly1305:
-            return "chacha20-poly1305"
+            return "Chacha20-Poly1305"
         case .auto:
-            return "auto"
+            return "Auto"
         case .none:
-            return "none"
+            return "None"
         case .zero:
-            return "zero"
+            return "Zero"
         }
     }
     
@@ -220,16 +220,16 @@ public enum MGConfigurationSecurity: String, Identifiable, CaseIterable, CustomS
     
     public var id: Self { self }
     
-    case tls, reality, none
+    case none, tls, reality
     
     public var description: String {
         switch self {
+        case .none:
+            return "None"
         case .tls:
             return "TLS"
         case .reality:
             return "Reality"
-        case .none:
-            return "None"
         }
     }
 }
@@ -243,11 +243,11 @@ public enum MGConfigurationFlow: String, Identifiable, CaseIterable, CustomStrin
     public var description: String {
         switch self {
         case .none:
-            return "none"
+            return "None"
         case .xtls_rprx_vision:
-            return "xtls-rprx-vision"
+            return "XTLS-RPRX-Vision"
         case .xtls_rprx_vision_udp443:
-            return "xtls-rprx-vision-udp443"
+            return "XTLS-RPRX-Vision-UDP443"
         }
     }
 }
@@ -256,7 +256,7 @@ public enum MGConfigurationFingerprint: String, Identifiable, CaseIterable, Cust
     
     public var id: Self { self }
     
-    case chrome, firefox, safari, ios, android, edge, _360, qq
+    case chrome, firefox, safari, ios, android, edge, _360, qq, random, randomized
     
     public var description: String {
         switch self {
@@ -276,6 +276,33 @@ public enum MGConfigurationFingerprint: String, Identifiable, CaseIterable, Cust
             return "360"
         case .qq:
             return "QQ"
+        case .random:
+            return "Random"
+        case .randomized:
+            return "Randomized"
+        }
+    }
+}
+
+public enum MGConfigurationALPN: String, Identifiable, CaseIterable, CustomStringConvertible {
+    
+    public var id: Self { self }
+    
+    case none       = ""
+    case h2         = "h2"
+    case http11     = "http/1.1"
+    case h2http11   = "h2,http/1.1"
+    
+    public var description: String {
+        switch self {
+        case .none:
+            return "None"
+        case .h2:
+            return "H2"
+        case .http11:
+            return "HTTP/1.1"
+        case .h2http11:
+            return "H2,HTTP/1.1"
         }
     }
 }
@@ -315,173 +342,9 @@ struct MGCreateConfigurationView: View {
                 }
             }
         }
+        .lineLimit(1)
+        .multilineTextAlignment(.trailing)
         .navigationTitle(Text("创建配置"))
-        .navigationBarTitleDisplayMode(.large)
-    }
-}
-
-struct MGConfigurationNetworkView: View {
-    
-    @State private var network = MGConfigurationNetwork.tcp
-    @State private var security = MGConfigurationSecurity.none
-        
-    var body: some View {
-        Form {
-            Section {
-                Picker("Network", selection: $network) {
-                    ForEach(MGConfigurationNetwork.allCases) { type in
-                        Text(type.description)
-                    }
-                }
-                Picker("Security", selection: $security) {
-                    ForEach(MGConfigurationSecurity.allCases) { type in
-                        Text(type.description)
-                    }
-                }
-            }
-            switch network {
-            case .tcp:
-                Section {
-                    LabeledContent("Host") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Path") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("TCP")
-                }
-            case .kcp:
-                Section {
-                    LabeledContent("Host") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Path") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("mKCP")
-                }
-            case .ws:
-                Section {
-                    LabeledContent("Host") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Path") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("WebSocket")
-                }
-            case .http:
-                Section {
-                    LabeledContent("Host") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Path") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("HTTP/2")
-                }
-            case .quic:
-                Section {
-                    LabeledContent("Host") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Path") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("QUIC")
-                }
-            case .grpc:
-                Section {
-                    LabeledContent("Host") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Path") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("gRPC")
-                }
-            }
-            switch security {
-            case .tls:
-                Section {
-                    Group {
-                        LabeledContent("Server Name") {
-                            TextField("", text: .constant(""))
-                        }
-                        Toggle("Reject Unknown SNI", isOn: .constant(false))
-                        Toggle("Allow Insecure", isOn: .constant(false))
-                        LabeledContent("ALPN") {
-                            TextField("", text: .constant(""))
-                        }
-                        LabeledContent("Min Version", value: "1.2")
-                        LabeledContent("Max Version", value: "1.3")
-                    }
-                    Group {
-                        LabeledContent("Cipher Suites") {
-                            TextField("", text: .constant(""))
-                        }
-                        DisclosureGroup(isExpanded: .constant(true)) {
-                            Text("ABC")
-                        } label: {
-                            LabeledContent("Certificates") {
-                                Text("1")
-                            }
-                        }
-                        Toggle("Disable System Root", isOn: .constant(false))
-                        Toggle("Enable Session Resumption", isOn: .constant(false))
-                        LabeledContent("Fingerprint") {
-                            Picker("", selection: .constant(MGConfigurationFingerprint.chrome)) {
-                                ForEach(MGConfigurationFingerprint.allCases) { fingerprint in
-                                    Text(fingerprint.description)
-                                }
-                            }
-                        }
-                        DisclosureGroup(isExpanded: .constant(true)) {
-                            Text("ABC")
-                        } label: {
-                            LabeledContent("Pinned Peer Certificate Chain Sha256") {
-                                Text("1")
-                            }
-                        }
-                    }
-                } header: {
-                    Text("TLS")
-                }
-            case .reality:
-                Section {
-                    LabeledContent("Fingerprint") {
-                        Picker("", selection: .constant(MGConfigurationFingerprint.chrome)) {
-                            ForEach(MGConfigurationFingerprint.allCases) { fingerprint in
-                                Text(fingerprint.description)
-                            }
-                        }
-                    }
-                    LabeledContent("Server Name") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Public Key") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("Short ID") {
-                        TextField("", text: .constant(""))
-                    }
-                    LabeledContent("SpiderX") {
-                        TextField("", text: .constant(""))
-                    }
-                } header: {
-                    Text("Reality")
-                }
-            case .none:
-                EmptyView()
-            }
-        }
-        .navigationTitle(Text("传输"))
         .navigationBarTitleDisplayMode(.large)
     }
 }
@@ -571,7 +434,16 @@ struct MGConfigurationSettingView: View {
 struct MGConfigurationStreamSettingView: View {
     
     var body: some View {
-        EmptyView()
+        NavigationLink {
+            MGConfigurationNetworkView()
+        } label: {
+            LabeledContent("Network", value: "TPC")
+        }
+        NavigationLink {
+            MGConfigurationSecurityView()
+        } label: {
+            LabeledContent("Security", value: MGConfigurationSecurity.none.description)
+        }
     }
 }
 
@@ -581,7 +453,6 @@ struct MGConfigurationMuxView: View {
         Toggle("Enable", isOn: .constant(false))
         LabeledContent("Concurrency") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
     }
 }
@@ -591,15 +462,12 @@ struct MGConfigurationVlESSView: View {
     var body: some View {
         LabeledContent("Address") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         LabeledContent("Port") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         LabeledContent("UUID") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         NavigationLink {
             MGConfigurationEncryptionView(title: "Encryption", encryptions: MGConfigurationEncryption.vless)
@@ -619,19 +487,15 @@ struct MGConfigurationVMessView: View {
     var body: some View {
         LabeledContent("Address") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         LabeledContent("Port") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         LabeledContent("ID") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         LabeledContent("Alert ID") {
             TextField("", text: .constant(""))
-                .multilineTextAlignment(.trailing)
         }
         NavigationLink {
             MGConfigurationEncryptionView(title: "Security", encryptions: MGConfigurationEncryption.vmess)
@@ -641,3 +505,152 @@ struct MGConfigurationVMessView: View {
     }
 }
 
+struct MGConfigurationNetworkView: View {
+    
+    @State private var network = MGConfigurationNetwork.tcp
+    
+    var body: some View {
+        Form {
+            Section {
+                Picker("Network", selection: $network) {
+                    ForEach(MGConfigurationNetwork.allCases) { type in
+                        Text(type.description)
+                    }
+                }
+            }
+            switch network {
+            case .tcp:
+                Section {
+                    LabeledContent("Host") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Path") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("TCP")
+                }
+            case .kcp:
+                Section {
+                    LabeledContent("Host") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Path") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("mKCP")
+                }
+            case .ws:
+                Section {
+                    LabeledContent("Host") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Path") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("WebSocket")
+                }
+            case .http:
+                Section {
+                    LabeledContent("Host") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Path") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("HTTP/2")
+                }
+            case .quic:
+                Section {
+                    LabeledContent("Host") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Path") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("QUIC")
+                }
+            case .grpc:
+                Section {
+                    LabeledContent("Host") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Path") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("gRPC")
+                }
+            }
+        }
+        .navigationTitle(Text("Network"))
+        .navigationBarTitleDisplayMode(.large)
+    }
+}
+
+struct MGConfigurationSecurityView: View {
+    
+    @State private var security = MGConfigurationSecurity.none
+    
+    var body: some View {
+        Form {
+            Section {
+                Picker("Security", selection: $security) {
+                    ForEach(MGConfigurationSecurity.allCases) { type in
+                        Text(type.description)
+                    }
+                }
+            }
+            switch security {
+            case .tls:
+                Section {
+                    LabeledContent("SNI") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Fingerprint") {
+                        Picker("", selection: .constant(MGConfigurationFingerprint.chrome)) {
+                            ForEach(MGConfigurationFingerprint.allCases) { fingerprint in
+                                Text(fingerprint.description)
+                            }
+                        }
+                    }
+                    Toggle("Allow Insecure", isOn: .constant(false))
+                } header: {
+                    Text("TLS")
+                }
+            case .reality:
+                Section {
+                    LabeledContent("SNI") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Fingerprint") {
+                        Picker("", selection: .constant(MGConfigurationFingerprint.chrome)) {
+                            ForEach(MGConfigurationFingerprint.allCases) { fingerprint in
+                                Text(fingerprint.description)
+                            }
+                        }
+                    }
+                    LabeledContent("Public Key") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("Short ID") {
+                        TextField("", text: .constant(""))
+                    }
+                    LabeledContent("SpiderX") {
+                        TextField("", text: .constant(""))
+                    }
+                } header: {
+                    Text("Reality")
+                }
+            case .none:
+                EmptyView()
+            }
+        }
+        .navigationTitle(Text("Security"))
+        .navigationBarTitleDisplayMode(.large)
+    }
+}
