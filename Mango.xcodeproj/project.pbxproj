@@ -58,6 +58,11 @@
 		70DE0D7329A62C4E00B3E343 /* MGHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D7229A62C4E00B3E343 /* MGHomeView.swift */; };
 		70DE0D7829A6306100B3E343 /* MGSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DE0D7729A6306100B3E343 /* MGSettingsView.swift */; };
 		70F82CB629C2E6B40072B334 /* MGContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CB529C2E6B40072B334 /* MGContentView.swift */; };
+		70F82CCC29C978650072B334 /* MGCreateConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CCB29C978650072B334 /* MGCreateConfigurationView.swift */; };
+		70F82CCE29C978850072B334 /* MGConfigurationVlESSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CCD29C978850072B334 /* MGConfigurationVlESSView.swift */; };
+		70F82CD029C9789F0072B334 /* MGConfigurationVMessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */; };
+		70F82CD229C978B30072B334 /* MGConfigurationNetworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD129C978B30072B334 /* MGConfigurationNetworkView.swift */; };
+		70F82CD429C978CF0072B334 /* MGConfigurationSecurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -154,6 +159,11 @@
 		70DE0D7229A62C4E00B3E343 /* MGHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGHomeView.swift; sourceTree = "<group>"; };
 		70DE0D7729A6306100B3E343 /* MGSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGSettingsView.swift; sourceTree = "<group>"; };
 		70F82CB529C2E6B40072B334 /* MGContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGContentView.swift; sourceTree = "<group>"; };
+		70F82CCB29C978650072B334 /* MGCreateConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGCreateConfigurationView.swift; sourceTree = "<group>"; };
+		70F82CCD29C978850072B334 /* MGConfigurationVlESSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationVlESSView.swift; sourceTree = "<group>"; };
+		70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationVMessView.swift; sourceTree = "<group>"; };
+		70F82CD129C978B30072B334 /* MGConfigurationNetworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationNetworkView.swift; sourceTree = "<group>"; };
+		70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationSecurityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +203,7 @@
 			children = (
 				706DB6B829B9DFBC002F22C7 /* MGConfigurationFormat.swift */,
 				706DB6BA29B9DFCE002F22C7 /* MGConfigurationLocation.swift */,
+				70F82CCA29C978400072B334 /* Create */,
 				706DB6C529BAC4AE002F22C7 /* List */,
 				706DB6C429BAC457002F22C7 /* Download */,
 			);
@@ -353,6 +364,18 @@
 			path = Setting;
 			sourceTree = "<group>";
 		};
+		70F82CCA29C978400072B334 /* Create */ = {
+			isa = PBXGroup;
+			children = (
+				70F82CCB29C978650072B334 /* MGCreateConfigurationView.swift */,
+				70F82CCD29C978850072B334 /* MGConfigurationVlESSView.swift */,
+				70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */,
+				70F82CD129C978B30072B334 /* MGConfigurationNetworkView.swift */,
+				70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */,
+			);
+			path = Create;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -484,21 +507,26 @@
 				706DB6C929BACC14002F22C7 /* MGConfigurationListManager.swift in Sources */,
 				706DB6BB29B9DFCE002F22C7 /* MGConfigurationLocation.swift in Sources */,
 				70B89C2E29C19F7D003DA577 /* MGLogEntranceView.swift in Sources */,
+				70F82CCC29C978650072B334 /* MGCreateConfigurationView.swift in Sources */,
 				70DE0D7329A62C4E00B3E343 /* MGHomeView.swift in Sources */,
 				70F82CB629C2E6B40072B334 /* MGContentView.swift in Sources */,
 				70C9EDD82951587D00B6995B /* MGResetView.swift in Sources */,
 				70B89C1E29C17C29003DA577 /* MGSniffingEntranceView.swift in Sources */,
+				70F82CD429C978CF0072B334 /* MGConfigurationSecurityView.swift in Sources */,
 				706DB6CB29BAE954002F22C7 /* MGConfigurationView.swift in Sources */,
 				70B89C2929C19D49003DA577 /* MGLogModel.swift in Sources */,
+				70F82CD029C9789F0072B334 /* MGConfigurationVMessView.swift in Sources */,
 				70B89C2C29C19E9C003DA577 /* MGLogViewModel.swift in Sources */,
 				70B89C2629C198E3003DA577 /* MGAssetEntranceView.swift in Sources */,
 				706DB6BD29B9DFE3002F22C7 /* MGConfiguration.swift in Sources */,
+				70F82CD229C978B30072B334 /* MGConfigurationNetworkView.swift in Sources */,
 				70DE0D7829A6306100B3E343 /* MGSettingsView.swift in Sources */,
 				70DE0D6E29A6155C00B3E343 /* MGPresentedButton.swift in Sources */,
 				70B89C3629C1A9C6003DA577 /* MGNetworkViewModel.swift in Sources */,
 				70B89C2029C17EE2003DA577 /* MGSniffingModel.swift in Sources */,
 				706DB6B929B9DFBC002F22C7 /* MGConfigurationFormat.swift in Sources */,
 				708B380629B0AA4200E24312 /* MGAssetViewModel.swift in Sources */,
+				70F82CCE29C978850072B334 /* MGConfigurationVlESSView.swift in Sources */,
 				706DB6C329B9E04B002F22C7 /* MGConfigurationLoadView.swift in Sources */,
 				7000C6E4295D635F0005626E /* MGControlView.swift in Sources */,
 				70B89C3829C1AA94003DA577 /* MGNetworkEntranceView.swift in Sources */,
