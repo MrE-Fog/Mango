@@ -169,20 +169,20 @@ struct MGConfigurationListView: View {
 }
 
 
-
-
-
-
-
-
-
+final class MGCreateConfigurationViewModel: ObservableObject {
+    
+    @Published var streamSettings = MGConfiguration.StreamSettings()
+    @Published var mux = MGConfiguration.Mux()
+}
 
 struct MGCreateConfigurationView: View {
+    
+    @ObservedObject private var vm = MGCreateConfigurationViewModel()
     
     @Environment(\.dismiss) private var dismiss
     
     let `protocol`: MGConfiguration.ProtocolType
-        
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -198,20 +198,23 @@ struct MGCreateConfigurationView: View {
                 }
                 Section {
                     NavigationLink {
-                        MGConfigurationNetworkView()
+                        MGConfigurationNetworkView(vm: vm)
                     } label: {
-                        LabeledContent("Network", value: "TPC")
+                        LabeledContent("Network", value: vm.streamSettings.network.description)
                     }
                     NavigationLink {
-                        MGConfigurationSecurityView()
+                        MGConfigurationSecurityView(vm: vm)
                     } label: {
-                        LabeledContent("Security", value: MGConfiguration.Security.none.description)
+                        LabeledContent("Security", value: vm.streamSettings.security.description)
                     }
                 } header: {
                     Text("Stream Setting")
                 }
                 Section {
-                    MGConfigurationMuxView()
+                    Toggle("Enable", isOn: $vm.mux.enabled)
+                    LabeledContent("Concurrency") {
+                        TextField("", value: $vm.mux.concurrency, formatter: NumberFormatter())
+                    }
                 } header: {
                     Text("Mux")
                 }
@@ -268,16 +271,6 @@ struct MGConfigurationProtocolView: View {
     }
 }
 
-struct MGConfigurationMuxView: View {
-    
-    var body: some View {
-        Toggle("Enable", isOn: .constant(false))
-        LabeledContent("Concurrency") {
-            TextField("", text: .constant(""))
-        }
-    }
-}
-
 struct MGConfigurationVlESSView: View {
     
     var body: some View {
@@ -328,18 +321,22 @@ struct MGConfigurationVMessView: View {
 
 struct MGConfigurationNetworkView: View {
     
-    @State private var network = MGConfiguration.Network.tcp
+    @ObservedObject private var vm: MGCreateConfigurationViewModel
     
+    init(vm: MGCreateConfigurationViewModel) {
+        self._vm = ObservedObject(initialValue: vm)
+    }
+        
     var body: some View {
         Form {
             Section {
-                Picker("Network", selection: $network) {
+                Picker("Network", selection: $vm.streamSettings.network) {
                     ForEach(MGConfiguration.Network.allCases) { type in
                         Text(type.description)
                     }
                 }
             }
-            switch network {
+            switch vm.streamSettings.network {
             case .tcp:
                 EmptyView()
             case .kcp:
@@ -424,58 +421,64 @@ struct MGConfigurationNetworkView: View {
 
 struct MGConfigurationSecurityView: View {
     
-    @State private var security = MGConfiguration.Security.none
+    @ObservedObject private var vm: MGCreateConfigurationViewModel
+    
+    init(vm: MGCreateConfigurationViewModel) {
+        self._vm = ObservedObject(initialValue: vm)
+    }
     
     var body: some View {
         Form {
             Section {
-                Picker("Security", selection: $security) {
+                Picker("Security", selection: $vm.streamSettings.security) {
                     ForEach(MGConfiguration.Security.allCases) { type in
                         Text(type.description)
                     }
                 }
             }
-            switch security {
+            switch vm.streamSettings.security {
             case .tls:
                 Section {
-                    LabeledContent("SNI") {
-                        TextField("", text: .constant(""))
+                    LabeledContent("Server Name") {
+                        TextField("", text: $vm.streamSettings.tlsSettings.serverName)
                     }
                     LabeledContent("Fingerprint") {
-                        Picker("", selection: .constant(MGConfiguration.Fingerprint.chrome)) {
+                        Picker("", selection: $vm.streamSettings.tlsSettings.fingerprint) {
                             ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in
                                 Text(fingerprint.description)
                             }
                         }
                     }
-                    Toggle("Allow Insecure", isOn: .constant(false))
+                    Toggle("Allow Insecure", isOn: $vm.streamSettings.tlsSettings.allowInsecure)
                 }
             case .reality:
                 Section {
-                    LabeledContent("SNI") {
-                        TextField("", text: .constant(""))
+                    LabeledContent("Server Name") {
+                        TextField("", text: $vm.streamSettings.realitySettings.serverName)
                     }
                     LabeledContent("Fingerprint") {
-                        Picker("", selection: .constant(MGConfiguration.Fingerprint.chrome)) {
+                        Picker("", selection: $vm.streamSettings.realitySettings.fingerprint) {
                             ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in
                                 Text(fingerprint.description)
                             }
                         }
                     }
                     LabeledContent("Public Key") {
-                        TextField("", text: .constant(""))
+                        TextField("", text: $vm.streamSettings.realitySettings.publicKey)
                     }
                     LabeledContent("Short ID") {
-                        TextField("", text: .constant(""))
+                        TextField("", text: $vm.streamSettings.realitySettings.shortId)
                     }
                     LabeledContent("SpiderX") {
-                        TextField("", text: .constant(""))
+                        TextField("", text: $vm.streamSettings.realitySettings.spiderX)
                     }
                 }
             case .none:
                 EmptyView()
             }
         }
+        .lineLimit(1)
+        .multilineTextAlignment(.trailing)
         .navigationTitle(Text("Security"))
         .navigationBarTitleDisplayMode(.inline)
     }
