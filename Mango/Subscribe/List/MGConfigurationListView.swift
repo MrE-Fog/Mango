@@ -176,7 +176,20 @@ final class MGCreateConfigurationViewModel: ObservableObject {
     @Published var shadowsocks = MGConfiguration.Shadowsocks()
     
     @Published var streamSettings = MGConfiguration.StreamSettings()
+
+    @Published var network  = MGConfiguration.Network.tcp
+    @Published var security = MGConfiguration.Security.none
+    @Published var tls      = MGConfiguration.StreamSettings.TLS()
+    @Published var reality  = MGConfiguration.StreamSettings.Reality()
+    @Published var tcp      = MGConfiguration.StreamSettings.TCP()
+    @Published var kcp      = MGConfiguration.StreamSettings.KCP()
+    @Published var ws       = MGConfiguration.StreamSettings.WS()
+    @Published var http     = MGConfiguration.StreamSettings.HTTP()
+    @Published var quic     = MGConfiguration.StreamSettings.QUIC()
+    @Published var grpc     = MGConfiguration.StreamSettings.GRPC()
+    
     @Published var mux = MGConfiguration.Mux()
+    
     @Published var descriptive: String = ""
     
     let protocolType: MGConfiguration.ProtocolType

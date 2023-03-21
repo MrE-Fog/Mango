@@ -31,12 +31,12 @@ struct MGCreateConfigurationView: View {
                     NavigationLink {
                         MGConfigurationNetworkView(vm: vm)
                     } label: {
-                        LabeledContent("Network", value: vm.streamSettings.network.description)
+                        LabeledContent("Network", value: vm.network.description)
                     }
                     NavigationLink {
                         MGConfigurationSecurityView(vm: vm)
                     } label: {
-                        LabeledContent("Security", value: vm.streamSettings.security.description)
+                        LabeledContent("Security", value: vm.security.description)
                     }
                 } header: {
                     Text("Stream Setting")

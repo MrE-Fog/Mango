@@ -322,16 +322,6 @@ extension MGConfiguration {
             public var permit_without_stream: Bool = false
             public var initial_windows_size: Int = 0
         }
-        public var network          = Network.tcp
-        public var security         = Security.none
-        public var tlsSettings      = TLS()
-        public var realitySettings  = Reality()
-        public var tcpSettings      = TCP()
-        public var kcpSettings      = KCP()
-        public var wsSettings       = WS()
-        public var httpSettings     = HTTP()
-        public var quicSettings     = QUIC()
-        public var grpcSettings     = GRPC()
     }
     
     public struct Mux: Codable {

@@ -11,74 +11,74 @@ struct MGConfigurationNetworkView: View {
     var body: some View {
         Form {
             Section {
-                Picker("Network", selection: $vm.streamSettings.network) {
+                Picker("Network", selection: $vm.network) {
                     ForEach(MGConfiguration.Network.allCases) { type in
                         Text(type.description)
                     }
                 }
             }
-            switch vm.streamSettings.network {
+            switch vm.network {
             case .tcp:
                 EmptyView()
             case .kcp:
                 Section {
                     LabeledContent("MTU") {
-                        TextField("", value: $vm.streamSettings.kcpSettings.mtu, format: .number)
+                        TextField("", value: $vm.kcp.mtu, format: .number)
                     }
                     LabeledContent("TTI") {
-                        TextField("", value: $vm.streamSettings.kcpSettings.tti, format: .number)
+                        TextField("", value: $vm.kcp.tti, format: .number)
                     }
                     LabeledContent("Uplink Capacity") {
-                        TextField("", value: $vm.streamSettings.kcpSettings.uplinkCapacity, format: .number)
+                        TextField("", value: $vm.kcp.uplinkCapacity, format: .number)
                     }
                     LabeledContent("Downlink Capacity") {
-                        TextField("", value: $vm.streamSettings.kcpSettings.downlinkCapacity, format: .number)
+                        TextField("", value: $vm.kcp.downlinkCapacity, format: .number)
                     }
                     Toggle("Congestion", isOn: .constant(false))
                     LabeledContent("Read Buffer Size") {
-                        TextField("", value: $vm.streamSettings.kcpSettings.readBufferSize, format: .number)
+                        TextField("", value: $vm.kcp.readBufferSize, format: .number)
                     }
                     LabeledContent("Write Buffer Size") {
-                        TextField("", value: $vm.streamSettings.kcpSettings.writeBufferSize, format: .number)
+                        TextField("", value: $vm.kcp.writeBufferSize, format: .number)
                     }
-                    Picker("Header Type", selection: $vm.streamSettings.kcpSettings.header.type) {
+                    Picker("Header Type", selection: $vm.kcp.header.type) {
                         ForEach(MGConfiguration.HeaderType.allCases) { type in
                             Text(type.description)
                         }
                     }
                     LabeledContent("Seed") {
-                        TextField("", text: $vm.streamSettings.kcpSettings.seed)
+                        TextField("", text: $vm.kcp.seed)
                     }
                 }
             case .ws:
                 Section {
                     LabeledContent("Host") {
-                        TextField("", text: $vm.streamSettings.wsSettings._host)
+                        TextField("", text: $vm.ws._host)
                     }
                     LabeledContent("Path") {
-                        TextField("", text: $vm.streamSettings.wsSettings.path)
+                        TextField("", text: $vm.ws.path)
                     }
                 }
             case .http:
                 Section {
                     LabeledContent("Host") {
-                        TextField("", text: $vm.streamSettings.httpSettings._host)
+                        TextField("", text: $vm.http._host)
                     }
                     LabeledContent("Path") {
-                        TextField("", text: $vm.streamSettings.httpSettings.path)
+                        TextField("", text: $vm.http.path)
                     }
                 }
             case .quic:
                 Section {
-                    Picker("Security", selection: $vm.streamSettings.quicSettings.security) {
+                    Picker("Security", selection: $vm.quic.security) {
                         ForEach(MGConfiguration.Encryption.quic) { encryption in
                             Text(encryption.description)
                         }
                     }
                     LabeledContent("Key") {
-                        TextField("", text: $vm.streamSettings.quicSettings.key)
+                        TextField("", text: $vm.quic.key)
                     }
-                    Picker("Header Type", selection: $vm.streamSettings.quicSettings.header.type) {
+                    Picker("Header Type", selection: $vm.quic.header.type) {
                         ForEach(MGConfiguration.HeaderType.allCases) { type in
                             Text(type.description)
                         }
@@ -87,9 +87,9 @@ struct MGConfigurationNetworkView: View {
             case .grpc:
                 Section {
                     LabeledContent("Service Name") {
-                        TextField("", text: $vm.streamSettings.grpcSettings.serviceName)
+                        TextField("", text: $vm.grpc.serviceName)
                     }
-                    Toggle("Multi-Mode", isOn: $vm.streamSettings.grpcSettings.multiMode)
+                    Toggle("Multi-Mode", isOn: $vm.grpc.multiMode)
                 }
             }
         }

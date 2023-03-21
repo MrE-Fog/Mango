@@ -11,47 +11,47 @@ struct MGConfigurationSecurityView: View {
     var body: some View {
         Form {
             Section {
-                Picker("Security", selection: $vm.streamSettings.security) {
+                Picker("Security", selection: $vm.security) {
                     ForEach(MGConfiguration.Security.allCases) { type in
                         Text(type.description)
                     }
                 }
             }
-            switch vm.streamSettings.security {
+            switch vm.security {
             case .tls:
                 Section {
                     LabeledContent("Server Name") {
-                        TextField("", text: $vm.streamSettings.tlsSettings.serverName)
+                        TextField("", text: $vm.tls.serverName)
                     }
                     LabeledContent("Fingerprint") {
-                        Picker("", selection: $vm.streamSettings.tlsSettings.fingerprint) {
+                        Picker("", selection: $vm.tls.fingerprint) {
                             ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in
                                 Text(fingerprint.description)
                             }
                         }
                     }
-                    Toggle("Allow Insecure", isOn: $vm.streamSettings.tlsSettings.allowInsecure)
+                    Toggle("Allow Insecure", isOn: $vm.tls.allowInsecure)
                 }
             case .reality:
                 Section {
                     LabeledContent("Server Name") {
-                        TextField("", text: $vm.streamSettings.realitySettings.serverName)
+                        TextField("", text: $vm.reality.serverName)
                     }
                     LabeledContent("Fingerprint") {
-                        Picker("", selection: $vm.streamSettings.realitySettings.fingerprint) {
+                        Picker("", selection: $vm.reality.fingerprint) {
                             ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in
                                 Text(fingerprint.description)
                             }
                         }
                     }
                     LabeledContent("Public Key") {
-                        TextField("", text: $vm.streamSettings.realitySettings.publicKey)
+                        TextField("", text: $vm.reality.publicKey)
                     }
                     LabeledContent("Short ID") {
-                        TextField("", text: $vm.streamSettings.realitySettings.shortId)
+                        TextField("", text: $vm.reality.shortId)
                     }
                     LabeledContent("SpiderX") {
-                        TextField("", text: $vm.streamSettings.realitySettings.spiderX)
+                        TextField("", text: $vm.reality.spiderX)
                     }
                 }
             case .none:
