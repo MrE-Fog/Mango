@@ -23,10 +23,14 @@ struct MGConfigurationVLESSView: View {
                 Text(encryption.description)
             }
         }
-        Picker("Flow", selection: $vm.vless.users[0].flow) {
-            ForEach(MGConfiguration.Flow.allCases) { encryption in
-                Text(encryption.description)
+        LabeledContent("Flow") {
+            Picker("Flow", selection: $vm.vless.users[0].flow) {
+                ForEach(MGConfiguration.Flow.allCases) { encryption in
+                    Text(encryption.description)
+                }
             }
+            .labelsHidden()
+            .fixedSize()
         }
     }
 }

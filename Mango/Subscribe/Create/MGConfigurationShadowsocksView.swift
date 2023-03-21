@@ -21,10 +21,14 @@ struct MGConfigurationShadowsocksView: View {
         LabeledContent("Password") {
             TextField("", text: $vm.shadowsocks.servers[0].password)
         }
-        Picker("Method", selection: $vm.shadowsocks.servers[0].method) {
-            ForEach(MGConfiguration.Shadowsocks.Method.allCases) { method in
-                Text(method.description)
+        LabeledContent("Method") {
+            Picker("Method", selection: $vm.shadowsocks.servers[0].method) {
+                ForEach(MGConfiguration.Shadowsocks.Method.allCases) { method in
+                    Text(method.description)
+                }
             }
+            .labelsHidden()
+            .fixedSize()
         }
         Toggle("UOT", isOn: $vm.shadowsocks.servers[0].uot)
     }
