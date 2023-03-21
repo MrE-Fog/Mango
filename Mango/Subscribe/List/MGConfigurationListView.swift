@@ -14,7 +14,7 @@ struct MGConfigurationListView: View {
     @State private var location: MGConfigurationLocation?
     
     @State private var isConfirmationDialogPresented = false
-    @State private var `protocol`: MGConfigurationProtocol?
+    @State private var `protocol`: MGConfiguration.ProtocolType?
     
     let current: Binding<String>
     
@@ -153,10 +153,10 @@ struct MGConfigurationListView: View {
                     Image(systemName: "plus")
                 }
                 .confirmationDialog("", isPresented: $isConfirmationDialogPresented) {
-                    Button(MGConfigurationProtocol.vless.description) {
+                    Button(MGConfiguration.ProtocolType.vless.description) {
                         `protocol` = .vless
                     }
-                    Button(MGConfigurationProtocol.vmess.description) {
+                    Button(MGConfiguration.ProtocolType.vmess.description) {
                         `protocol` = .vmess
                     }
                 }
@@ -168,214 +168,20 @@ struct MGConfigurationListView: View {
     }
 }
 
-public enum MGConfigurationProtocol: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case vless, vmess
-    
-    public var description: String {
-        switch self {
-        case .vless:
-            return "VLESS"
-        case .vmess:
-            return "VMess"
-        }
-    }
-}
 
-public enum MGConfigurationNetwork: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case tcp, kcp, ws, http, quic, grpc
 
-    public var description: String {
-        switch self {
-        case .tcp:
-            return "TCP"
-        case .kcp:
-            return "mKCP"
-        case .ws:
-            return "WebSocket"
-        case .http:
-            return "HTTP/2"
-        case .quic:
-            return "QUIC"
-        case .grpc:
-            return "gRPC"
-        }
-    }
-}
 
-public enum MGConfigurationEncryption: String, Identifiable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case aes_128_gcm        = "aes-128-gcm"
-    case chacha20_poly1305  = "chacha20-poly1305"
-    case auto               = "auto"
-    case none               = "none"
-    case zero               = "zero"
-    
-    public var description: String {
-        switch self {
-        case .aes_128_gcm:
-            return "AES-128-GCM"
-        case .chacha20_poly1305:
-            return "Chacha20-Poly1305"
-        case .auto:
-            return "Auto"
-        case .none:
-            return "None"
-        case .zero:
-            return "Zero"
-        }
-    }
-    
-    public static let vless: [MGConfigurationEncryption] = [.auto, .aes_128_gcm, .chacha20_poly1305, .none]
-    
-    public static let vmess: [MGConfigurationEncryption] = [.auto, .aes_128_gcm, .chacha20_poly1305, .none, .zero]
-    
-    public static let quic: [MGConfigurationEncryption] = [.none, .aes_128_gcm, .chacha20_poly1305]
-}
 
-public enum MGConfigurationSecurity: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case none, tls, reality
-    
-    public var description: String {
-        switch self {
-        case .none:
-            return "None"
-        case .tls:
-            return "TLS"
-        case .reality:
-            return "Reality"
-        }
-    }
-}
 
-public enum MGConfigurationHeaderType: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case none           = "none"
-    case srtp           = "srtp"
-    case utp            = "utp"
-    case wechat_video   = "wechat-video"
-    case dtls           = "dtls"
-    case wireguard      = "wireguard"
-        
-    public var description: String {
-        switch self {
-        case .none:
-            return "None"
-        case .srtp:
-            return "SRTP"
-        case .utp:
-            return "UTP"
-        case .wechat_video:
-            return "Wecaht Video"
-        case .dtls:
-            return "DTLS"
-        case .wireguard:
-            return "Wireguard"
-        }
-    }
-}
 
-public enum MGConfigurationFlow: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case none                       = "none"
-    case xtls_rprx_vision           = "xtls-rprx-vision"
-    case xtls_rprx_vision_udp443    = "xtls-rprx-vision-udp443"
-    
-    public var description: String {
-        switch self {
-        case .none:
-            return "None"
-        case .xtls_rprx_vision:
-            return "XTLS-RPRX-Vision"
-        case .xtls_rprx_vision_udp443:
-            return "XTLS-RPRX-Vision-UDP443"
-        }
-    }
-}
 
-public enum MGConfigurationFingerprint: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case chrome     = "chrome"
-    case firefox    = "firefox"
-    case safari     = "safari"
-    case ios        = "ios"
-    case android    = "android"
-    case edge       = "edge"
-    case _360       = "360"
-    case qq         = "qq"
-    case random     = "random"
-    case randomized = "randomized"
-    
-    public var description: String {
-        switch self {
-        case .chrome:
-            return "Chrome"
-        case .firefox:
-            return "Firefox"
-        case .safari:
-            return "Safari"
-        case .ios:
-            return "iOS"
-        case .android:
-            return "Android"
-        case .edge:
-            return "Edge"
-        case ._360:
-            return "360"
-        case .qq:
-            return "QQ"
-        case .random:
-            return "Random"
-        case .randomized:
-            return "Randomized"
-        }
-    }
-}
 
-public enum MGConfigurationALPN: String, Identifiable, CaseIterable, CustomStringConvertible {
-    
-    public var id: Self { self }
-    
-    case none       = ""
-    case h2         = "h2"
-    case http11     = "http/1.1"
-    case h2http11   = "h2,http/1.1"
-    
-    public var description: String {
-        switch self {
-        case .none:
-            return "None"
-        case .h2:
-            return "H2"
-        case .http11:
-            return "HTTP/1.1"
-        case .h2http11:
-            return "H2,HTTP/1.1"
-        }
-    }
-}
 
 struct MGCreateConfigurationView: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    let `protocol`: MGConfigurationProtocol
+    let `protocol`: MGConfiguration.ProtocolType
         
     var body: some View {
         NavigationStack {
@@ -399,7 +205,7 @@ struct MGCreateConfigurationView: View {
                     NavigationLink {
                         MGConfigurationSecurityView()
                     } label: {
-                        LabeledContent("Security", value: MGConfigurationSecurity.none.description)
+                        LabeledContent("Security", value: MGConfiguration.Security.none.description)
                     }
                 } header: {
                     Text("Stream Setting")
@@ -444,12 +250,12 @@ struct MGConfigurationProtocolView: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    let `protocol`: Binding<MGConfigurationProtocol>
+    let `protocol`: Binding<MGConfiguration.ProtocolType>
     
     var body: some View {
         Form {
             Picker("Protocol", selection: `protocol`) {
-                ForEach(MGConfigurationProtocol.allCases) { `protocol` in
+                ForEach(MGConfiguration.ProtocolType.allCases) { `protocol` in
                     Text(`protocol`.description)
                 }
             }
@@ -484,13 +290,13 @@ struct MGConfigurationVlESSView: View {
         LabeledContent("UUID") {
             TextField("", text: .constant(""))
         }
-        Picker("Encryption", selection: .constant(MGConfigurationEncryption.none)) {
-            ForEach(MGConfigurationEncryption.vless) { encryption in
+        Picker("Encryption", selection: .constant(MGConfiguration.Encryption.none)) {
+            ForEach(MGConfiguration.Encryption.vless) { encryption in
                 Text(encryption.description)
             }
         }
-        Picker("Flow", selection: .constant(MGConfigurationFlow.none)) {
-            ForEach(MGConfigurationFlow.allCases) { encryption in
+        Picker("Flow", selection: .constant(MGConfiguration.Flow.none)) {
+            ForEach(MGConfiguration.Flow.allCases) { encryption in
                 Text(encryption.description)
             }
         }
@@ -512,8 +318,8 @@ struct MGConfigurationVMessView: View {
         LabeledContent("Alert ID") {
             TextField("", text: .constant(""))
         }
-        Picker("Encryption", selection: .constant(MGConfigurationEncryption.none)) {
-            ForEach(MGConfigurationEncryption.vmess) { encryption in
+        Picker("Encryption", selection: .constant(MGConfiguration.Encryption.none)) {
+            ForEach(MGConfiguration.Encryption.vmess) { encryption in
                 Text(encryption.description)
             }
         }
@@ -522,13 +328,13 @@ struct MGConfigurationVMessView: View {
 
 struct MGConfigurationNetworkView: View {
     
-    @State private var network = MGConfigurationNetwork.tcp
+    @State private var network = MGConfiguration.Network.tcp
     
     var body: some View {
         Form {
             Section {
                 Picker("Network", selection: $network) {
-                    ForEach(MGConfigurationNetwork.allCases) { type in
+                    ForEach(MGConfiguration.Network.allCases) { type in
                         Text(type.description)
                     }
                 }
@@ -557,8 +363,8 @@ struct MGConfigurationNetworkView: View {
                     LabeledContent("Write Buffer Size") {
                         TextField("", text: .constant(""))
                     }
-                    Picker("Header Type", selection: .constant(MGConfigurationHeaderType.none)) {
-                        ForEach(MGConfigurationHeaderType.allCases) { type in
+                    Picker("Header Type", selection: .constant(MGConfiguration.HeaderType.none)) {
+                        ForEach(MGConfiguration.HeaderType.allCases) { type in
                             Text(type.description)
                         }
                     }
@@ -586,16 +392,16 @@ struct MGConfigurationNetworkView: View {
                 }
             case .quic:
                 Section {
-                    Picker("Security", selection: .constant(MGConfigurationEncryption.none)) {
-                        ForEach(MGConfigurationEncryption.quic) { encryption in
+                    Picker("Security", selection: .constant(MGConfiguration.Encryption.none)) {
+                        ForEach(MGConfiguration.Encryption.quic) { encryption in
                             Text(encryption.description)
                         }
                     }
                     LabeledContent("Key") {
                         TextField("", text: .constant(""))
                     }
-                    Picker("Header Type", selection: .constant(MGConfigurationHeaderType.none)) {
-                        ForEach(MGConfigurationHeaderType.allCases) { type in
+                    Picker("Header Type", selection: .constant(MGConfiguration.HeaderType.none)) {
+                        ForEach(MGConfiguration.HeaderType.allCases) { type in
                             Text(type.description)
                         }
                     }
@@ -618,13 +424,13 @@ struct MGConfigurationNetworkView: View {
 
 struct MGConfigurationSecurityView: View {
     
-    @State private var security = MGConfigurationSecurity.none
+    @State private var security = MGConfiguration.Security.none
     
     var body: some View {
         Form {
             Section {
                 Picker("Security", selection: $security) {
-                    ForEach(MGConfigurationSecurity.allCases) { type in
+                    ForEach(MGConfiguration.Security.allCases) { type in
                         Text(type.description)
                     }
                 }
@@ -636,8 +442,8 @@ struct MGConfigurationSecurityView: View {
                         TextField("", text: .constant(""))
                     }
                     LabeledContent("Fingerprint") {
-                        Picker("", selection: .constant(MGConfigurationFingerprint.chrome)) {
-                            ForEach(MGConfigurationFingerprint.allCases) { fingerprint in
+                        Picker("", selection: .constant(MGConfiguration.Fingerprint.chrome)) {
+                            ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in
                                 Text(fingerprint.description)
                             }
                         }
@@ -650,8 +456,8 @@ struct MGConfigurationSecurityView: View {
                         TextField("", text: .constant(""))
                     }
                     LabeledContent("Fingerprint") {
-                        Picker("", selection: .constant(MGConfigurationFingerprint.chrome)) {
-                            ForEach(MGConfigurationFingerprint.allCases) { fingerprint in
+                        Picker("", selection: .constant(MGConfiguration.Fingerprint.chrome)) {
+                            ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in
                                 Text(fingerprint.description)
                             }
                         }
