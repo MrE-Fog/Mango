@@ -13,15 +13,15 @@ struct MGConfigurationListView: View {
     
     @State private var location: MGConfigurationLocation?
     
+    @State private var isConfirmationDialogPresented = false
+    @State private var `protocol`: MGConfigurationProtocol?
+    
     let current: Binding<String>
     
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    NavigationLink("创建配置") {
-                        MGCreateConfigurationView()
-                    }
                     Button {
                         location = .remote
                     } label: {
@@ -146,6 +146,24 @@ struct MGConfigurationListView: View {
             .sheet(item: $location) { location in
                 MGConfigurationLoadView(location: location)
             }
+            .toolbar {
+                Button {
+                    isConfirmationDialogPresented.toggle()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .confirmationDialog("", isPresented: $isConfirmationDialogPresented) {
+                    Button(MGConfigurationProtocol.vless.description) {
+                        `protocol` = .vless
+                    }
+                    Button(MGConfigurationProtocol.vmess.description) {
+                        `protocol` = .vmess
+                    }
+                }
+                .fullScreenCover(item: $protocol) { `protocol` in
+                    MGCreateConfigurationView(protocol: `protocol`)
+                }
+            }
         }
     }
 }
@@ -161,7 +179,7 @@ public enum MGConfigurationProtocol: String, Identifiable, CaseIterable, CustomS
         case .vless:
             return "VLESS"
         case .vmess:
-            return "VMessAEAD"
+            return "VMess"
         }
     }
 }
@@ -309,43 +327,56 @@ public enum MGConfigurationALPN: String, Identifiable, CaseIterable, CustomStrin
 
 struct MGCreateConfigurationView: View {
     
-    @State private var `protocol` = MGConfigurationProtocol.vless
+    @Environment(\.dismiss) private var dismiss
+    
+    let `protocol`: MGConfigurationProtocol
         
     var body: some View {
-        Form {
-            Section {
-                NavigationLink {
-                    MGConfigurationProtocolView(protocol: $protocol)
-                } label: {
-                    LabeledContent("Protocol", value: `protocol`.description)
+        NavigationStack {
+            Form {
+                Section {
+                    MGConfigurationSettingView(protocol: `protocol`)
+                } header: {
+                    Text("Setting")
+                }
+                Section {
+                    MGConfigurationStreamSettingView()
+                } header: {
+                    Text("Stream Setting")
+                }
+                Section {
+                    MGConfigurationMuxView()
+                } header: {
+                    Text("Mux")
+                }
+                Section {
+                    LabeledContent("Description") {
+                        TextField("", text: .constant(""))
+                    }
                 }
             }
-            Section {
-                MGConfigurationSettingView(protocol: `protocol`)
-            } header: {
-                Text("Setting")
-            }
-            Section {
-                MGConfigurationStreamSettingView()
-            } header: {
-                Text("Stream Setting")
-            }
-            Section {
-                MGConfigurationMuxView()
-            } header: {
-                Text("Mux")
-            }
-            Section {
-                LabeledContent("Description") {
-                    TextField("", text: .constant(""))
-                        .multilineTextAlignment(.trailing)
+            .lineLimit(1)
+            .multilineTextAlignment(.trailing)
+            .navigationTitle(Text(`protocol`.description))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(role: .cancel) {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Done")
+                    }
+                    .fontWeight(.medium)
                 }
             }
         }
-        .lineLimit(1)
-        .multilineTextAlignment(.trailing)
-        .navigationTitle(Text("创建配置"))
-        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -368,7 +399,7 @@ struct MGConfigurationEncryptionView: View {
             .pickerStyle(.inline)
         }
         .navigationTitle(Text(title))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: encryption) { _ in dismiss() }
     }
 }
@@ -390,7 +421,7 @@ struct MGConfigurationFlowView: View {
             .pickerStyle(.inline)
         }
         .navigationTitle(Text("Flow"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: flow) { _ in dismiss() }
     }
 }
@@ -412,7 +443,7 @@ struct MGConfigurationProtocolView: View {
             .pickerStyle(.inline)
         }
         .navigationTitle(Text("Protocol"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: `protocol`.wrappedValue) { _ in dismiss() }
     }
 }
@@ -588,7 +619,7 @@ struct MGConfigurationNetworkView: View {
             }
         }
         .navigationTitle(Text("Network"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -651,6 +682,6 @@ struct MGConfigurationSecurityView: View {
             }
         }
         .navigationTitle(Text("Security"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
