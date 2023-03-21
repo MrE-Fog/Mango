@@ -16,12 +16,12 @@ struct MGConfigurationVMessView: View {
             TextField("", value: $vm.vmess.port, format: .number)
         }
         LabeledContent("ID") {
-            TextField("", text: $vm.vmess._user.id)
+            TextField("", text: $vm.vmess.users[0].id)
         }
         LabeledContent("Alert ID") {
-            TextField("", value: $vm.vmess._user.alterId, format: .number)
+            TextField("", value: $vm.vmess.users[0].alterId, format: .number)
         }
-        Picker("Encryption", selection: $vm.vmess._user.encryption) {
+        Picker("Encryption", selection: $vm.vmess.users[0].encryption) {
             ForEach(MGConfiguration.Encryption.vmess) { encryption in
                 Text(encryption.description)
             }

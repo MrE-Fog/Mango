@@ -30,7 +30,7 @@ extension MGConfiguration {
         
         public var id: Self { self }
         
-        case vless, vmess
+        case vless, vmess, trojan, shadowsocks
         
         public var description: String {
             switch self {
@@ -38,6 +38,10 @@ extension MGConfiguration {
                 return "VLESS"
             case .vmess:
                 return "VMess"
+            case .trojan:
+                return "Trojan"
+            case .shadowsocks:
+                return "Shadowsocks"
             }
         }
     }
@@ -91,9 +95,9 @@ extension MGConfiguration {
             }
         }
         
-        public static let vless: [MGConfiguration.Encryption] = [.auto, .aes_128_gcm, .chacha20_poly1305, .none]
+        public static let vless: [MGConfiguration.Encryption] = [.none, .auto, .aes_128_gcm, .chacha20_poly1305]
         
-        public static let vmess: [MGConfiguration.Encryption] = [.auto, .aes_128_gcm, .chacha20_poly1305, .none, .zero]
+        public static let vmess: [MGConfiguration.Encryption] = [.none, .auto, .aes_128_gcm, .chacha20_poly1305, .zero]
         
         public static let quic:  [MGConfiguration.Encryption] = [.none, .aes_128_gcm, .chacha20_poly1305]
     }
@@ -344,12 +348,7 @@ extension MGConfiguration {
         }
         public var address: String = ""
         public var port: Int = 443
-        public var users: [User] = []
-        public var _user = User() {
-            didSet {
-                self.users = [self._user]
-            }
-        }
+        public var users: [User] = [User()]
     }
     
     public struct VMess: Codable {
@@ -361,11 +360,64 @@ extension MGConfiguration {
         }
         public var address: String = ""
         public var port: Int = 443
-        public var users: [User] = []
-        public var _user = User() {
-            didSet {
-                self.users = [self._user]
+        public var users: [User] = [User()]
+    }
+    
+    public struct Trojan: Codable {
+        public struct Server: Codable {
+            public var address: String = ""
+            public var port: Int = 443
+            public var password: String = ""
+            public var email: String = ""
+            public var level: Int = 0
+        }
+        public var servers: [Server] = [Server()]
+    }
+    
+    public struct Shadowsocks: Codable {
+        public enum Method: String, Identifiable, CustomStringConvertible, Codable, CaseIterable {
+            public var id: Self { self }
+            case _2022_blake3_aes_128_gcm       = "2022-blake3-aes-128-gcm"
+            case _2022_blake3_aes_256_gcm       = "2022-blake3-aes-256-gcm"
+            case _2022_blake3_chacha20_poly1305 = "2022-blake3-chacha20-poly1305"
+            case aes_256_gcm                    = "aes-256-gcm"
+            case aes_128_gcm                    = "aes-128-gcm"
+            case chacha20_poly1305              = "chacha20-poly1305"
+            case chacha20_ietf_poly1305         = "chacha20-ietf-poly1305"
+            case plain                          = "plain"
+            case none                           = "none"
+            public var description: String {
+                switch self {
+                case ._2022_blake3_aes_128_gcm:
+                    return "2022-Blake3-AES-128-GCM"
+                case ._2022_blake3_aes_256_gcm:
+                    return "2022-Blake3-AES-256-GCM"
+                case ._2022_blake3_chacha20_poly1305:
+                    return "2022-Blake3-Chacha20-Poly1305"
+                case .aes_256_gcm:
+                    return "AES-256-GCM"
+                case .aes_128_gcm:
+                    return "AES-128-GCM"
+                case .chacha20_poly1305:
+                    return "Chacha20-Poly1305"
+                case .chacha20_ietf_poly1305:
+                    return "Chacha20-ietf-Poly1305"
+                case .none:
+                    return "None"
+                case .plain:
+                    return "Plain"
+                }
             }
         }
+        public struct Server: Codable {
+            public var address: String = ""
+            public var port: Int = 443
+            public var password: String = ""
+            public var email: String = ""
+            public var method = Method.none
+            public var uot: Bool = false
+            public var level: Int = 0
+        }
+        public var servers: [Server] = [Server()]
     }
 }

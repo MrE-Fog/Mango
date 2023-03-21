@@ -63,6 +63,8 @@
 		70F82CD029C9789F0072B334 /* MGConfigurationVMessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */; };
 		70F82CD229C978B30072B334 /* MGConfigurationNetworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD129C978B30072B334 /* MGConfigurationNetworkView.swift */; };
 		70F82CD429C978CF0072B334 /* MGConfigurationSecurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */; };
+		70F82CD629C990E60072B334 /* MGConfigurationShadowsocksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */; };
+		70F82CD829C990FF0072B334 /* MGConfigurationTrojanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,6 +166,8 @@
 		70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationVMessView.swift; sourceTree = "<group>"; };
 		70F82CD129C978B30072B334 /* MGConfigurationNetworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationNetworkView.swift; sourceTree = "<group>"; };
 		70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationSecurityView.swift; sourceTree = "<group>"; };
+		70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationShadowsocksView.swift; sourceTree = "<group>"; };
+		70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationTrojanView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -370,6 +374,8 @@
 				70F82CCB29C978650072B334 /* MGCreateConfigurationView.swift */,
 				70F82CCD29C978850072B334 /* MGConfigurationVLESSView.swift */,
 				70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */,
+				70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */,
+				70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */,
 				70F82CD129C978B30072B334 /* MGConfigurationNetworkView.swift */,
 				70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */,
 			);
@@ -503,6 +509,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				702D908A299B58A400B83324 /* MGNotification.swift in Sources */,
+				70F82CD629C990E60072B334 /* MGConfigurationShadowsocksView.swift in Sources */,
 				70B89C3329C1A918003DA577 /* MGNetworkModel.swift in Sources */,
 				706DB6C929BACC14002F22C7 /* MGConfigurationListManager.swift in Sources */,
 				706DB6BB29B9DFCE002F22C7 /* MGConfigurationLocation.swift in Sources */,
@@ -525,6 +532,7 @@
 				70B89C3629C1A9C6003DA577 /* MGNetworkViewModel.swift in Sources */,
 				70B89C2029C17EE2003DA577 /* MGSniffingModel.swift in Sources */,
 				706DB6B929B9DFBC002F22C7 /* MGConfigurationFormat.swift in Sources */,
+				70F82CD829C990FF0072B334 /* MGConfigurationTrojanView.swift in Sources */,
 				708B380629B0AA4200E24312 /* MGAssetViewModel.swift in Sources */,
 				70F82CCE29C978850072B334 /* MGConfigurationVLESSView.swift in Sources */,
 				706DB6C329B9E04B002F22C7 /* MGConfigurationLoadView.swift in Sources */,

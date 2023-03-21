@@ -16,14 +16,14 @@ struct MGConfigurationVLESSView: View {
             TextField("", value: $vm.vless.port, format: .number)
         }
         LabeledContent("UUID") {
-            TextField("", text: $vm.vless._user.id)
+            TextField("", text: $vm.vless.users[0].id)
         }
-        Picker("Encryption", selection: $vm.vless._user.encryption) {
+        Picker("Encryption", selection: $vm.vless.users[0].encryption) {
             ForEach(MGConfiguration.Encryption.vless) { encryption in
                 Text(encryption.description)
             }
         }
-        Picker("Flow", selection: $vm.vless._user.flow) {
+        Picker("Flow", selection: $vm.vless.users[0].flow) {
             ForEach(MGConfiguration.Flow.allCases) { encryption in
                 Text(encryption.description)
             }

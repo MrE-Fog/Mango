@@ -153,11 +153,10 @@ struct MGConfigurationListView: View {
                     Image(systemName: "plus")
                 }
                 .confirmationDialog("", isPresented: $isConfirmationDialogPresented) {
-                    Button(MGConfiguration.ProtocolType.vless.description) {
-                        protocolType = .vless
-                    }
-                    Button(MGConfiguration.ProtocolType.vmess.description) {
-                        protocolType = .vmess
+                    ForEach(MGConfiguration.ProtocolType.allCases) { value in
+                        Button(value.description) {
+                            protocolType = value
+                        }
                     }
                 }
                 .fullScreenCover(item: $protocolType) { protocolType in
@@ -173,6 +172,9 @@ final class MGCreateConfigurationViewModel: ObservableObject {
     
     @Published var vless = MGConfiguration.VLESS()
     @Published var vmess = MGConfiguration.VMess()
+    @Published var trojan = MGConfiguration.Trojan()
+    @Published var shadowsocks = MGConfiguration.Shadowsocks()
+    
     @Published var streamSettings = MGConfiguration.StreamSettings()
     @Published var mux = MGConfiguration.Mux()
     @Published var descriptive: String = ""

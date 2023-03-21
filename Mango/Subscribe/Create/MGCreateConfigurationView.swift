@@ -19,6 +19,10 @@ struct MGCreateConfigurationView: View {
                         MGConfigurationVLESSView(vm: vm)
                     case .vmess:
                         MGConfigurationVMessView(vm: vm)
+                    case .trojan:
+                        MGConfigurationTrojanView(vm: vm)
+                    case .shadowsocks:
+                        MGConfigurationShadowsocksView(vm: vm)
                     }
                 } header: {
                     Text("Setting")
