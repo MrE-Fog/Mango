@@ -275,6 +275,15 @@ extension MGConfiguration {
         public struct WS: Codable {
             public var path: String = "/"
             public var headers: [String: String] = [:]
+            public var _host: String = "" {
+                didSet {
+                    if self._host.isEmpty {
+                        self.headers = [:]
+                    } else {
+                        self.headers = ["Host": self._host]
+                    }
+                }
+            }
         }
         public struct HTTP: Codable {
             public var host: [String] = []
@@ -283,6 +292,15 @@ extension MGConfiguration {
             public var health_check_timeout: Int = 15
             public var method: String = "PUT"
             public var headers: [String: [String]] = [:]
+            public var _host: String = "" {
+                didSet {
+                    if self._host.isEmpty {
+                        self.host = []
+                    } else {
+                        self.host = [self._host]
+                    }
+                }
+            }
         }
         public struct QUIC: Codable {
             public struct Header: Codable {

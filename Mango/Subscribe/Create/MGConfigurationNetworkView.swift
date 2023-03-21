@@ -53,7 +53,7 @@ struct MGConfigurationNetworkView: View {
             case .ws:
                 Section {
                     LabeledContent("Host") {
-                        TextField("", text: .constant(""))
+                        TextField("", text: $vm.streamSettings.wsSettings._host)
                     }
                     LabeledContent("Path") {
                         TextField("", text: $vm.streamSettings.wsSettings.path)
@@ -62,7 +62,7 @@ struct MGConfigurationNetworkView: View {
             case .http:
                 Section {
                     LabeledContent("Host") {
-                        TextField("", text: .constant(""))
+                        TextField("", text: $vm.streamSettings.httpSettings._host)
                     }
                     LabeledContent("Path") {
                         TextField("", text: $vm.streamSettings.httpSettings.path)
