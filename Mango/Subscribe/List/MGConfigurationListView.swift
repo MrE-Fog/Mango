@@ -14,7 +14,7 @@ struct MGConfigurationListView: View {
     @State private var location: MGConfigurationLocation?
     
     @State private var isConfirmationDialogPresented = false
-    @State private var `protocol`: MGConfiguration.ProtocolType?
+    @State private var protocolType: MGConfiguration.ProtocolType?
     
     let current: Binding<String>
     
@@ -154,14 +154,14 @@ struct MGConfigurationListView: View {
                 }
                 .confirmationDialog("", isPresented: $isConfirmationDialogPresented) {
                     Button(MGConfiguration.ProtocolType.vless.description) {
-                        `protocol` = .vless
+                        protocolType = .vless
                     }
                     Button(MGConfiguration.ProtocolType.vmess.description) {
-                        `protocol` = .vmess
+                        protocolType = .vmess
                     }
                 }
-                .fullScreenCover(item: $protocol) { `protocol` in
-                    MGCreateConfigurationView(protocol: `protocol`)
+                .fullScreenCover(item: $protocolType) { protocolType in
+                    MGCreateConfigurationView(protocolType: protocolType)
                 }
             }
         }
@@ -171,7 +171,15 @@ struct MGConfigurationListView: View {
 
 final class MGCreateConfigurationViewModel: ObservableObject {
     
+    @Published var vless = MGConfiguration.VLESS()
+    @Published var vmess = MGConfiguration.VMess()
     @Published var streamSettings = MGConfiguration.StreamSettings()
     @Published var mux = MGConfiguration.Mux()
     @Published var descriptive: String = ""
+    
+    let protocolType: MGConfiguration.ProtocolType
+    
+    init(protocolType: MGConfiguration.ProtocolType) {
+        self.protocolType = protocolType
+    }
 }

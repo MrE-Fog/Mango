@@ -2,20 +2,26 @@ import SwiftUI
 
 struct MGConfigurationVMessView: View {
     
+    @ObservedObject private var vm: MGCreateConfigurationViewModel
+    
+    init(vm: MGCreateConfigurationViewModel) {
+        self._vm = ObservedObject(initialValue: vm)
+    }
+    
     var body: some View {
         LabeledContent("Address") {
-            TextField("", text: .constant(""))
+            TextField("", text: $vm.vmess.address)
         }
         LabeledContent("Port") {
-            TextField("", text: .constant(""))
+            TextField("", value: $vm.vmess.port, format: .number)
         }
         LabeledContent("ID") {
-            TextField("", text: .constant(""))
+            TextField("", text: $vm.vmess._user.id)
         }
         LabeledContent("Alert ID") {
-            TextField("", text: .constant(""))
+            TextField("", value: $vm.vmess._user.alterId, format: .number)
         }
-        Picker("Encryption", selection: .constant(MGConfiguration.Encryption.none)) {
+        Picker("Encryption", selection: $vm.vmess._user.encryption) {
             ForEach(MGConfiguration.Encryption.vmess) { encryption in
                 Text(encryption.description)
             }

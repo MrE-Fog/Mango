@@ -2,21 +2,23 @@ import SwiftUI
 
 struct MGCreateConfigurationView: View {
     
-    @ObservedObject private var vm = MGCreateConfigurationViewModel()
+    @ObservedObject private var vm: MGCreateConfigurationViewModel
     
     @Environment(\.dismiss) private var dismiss
-    
-    let `protocol`: MGConfiguration.ProtocolType
+        
+    init(protocolType: MGConfiguration.ProtocolType) {
+        self._vm = ObservedObject(initialValue: MGCreateConfigurationViewModel(protocolType: protocolType))
+    }
     
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    switch `protocol` {
+                    switch vm.protocolType {
                     case .vless:
-                        MGConfigurationVlESSView()
+                        MGConfigurationVLESSView(vm: vm)
                     case .vmess:
-                        MGConfigurationVMessView()
+                        MGConfigurationVMessView(vm: vm)
                     }
                 } header: {
                     Text("Setting")
@@ -51,7 +53,7 @@ struct MGCreateConfigurationView: View {
             }
             .lineLimit(1)
             .multilineTextAlignment(.trailing)
-            .navigationTitle(Text(`protocol`.description))
+            .navigationTitle(Text(vm.protocolType.description))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

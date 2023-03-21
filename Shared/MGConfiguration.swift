@@ -334,4 +334,38 @@ extension MGConfiguration {
         public var enabled: Bool = false
         public var concurrency: Int = 8
     }
+    
+    public struct VLESS: Codable {
+        public struct User: Codable {
+            public var id: String = ""
+            public var encryption = Encryption.none
+            public var flow = Flow.none
+            public var level: Int = 0
+        }
+        public var address: String = ""
+        public var port: Int = 443
+        public var users: [User] = []
+        public var _user = User() {
+            didSet {
+                self.users = [self._user]
+            }
+        }
+    }
+    
+    public struct VMess: Codable {
+        public struct User: Codable {
+            public var id: String = ""
+            public var alterId: Int = 0
+            public var encryption = Encryption.auto
+            public var level: Int = 0
+        }
+        public var address: String = ""
+        public var port: Int = 443
+        public var users: [User] = []
+        public var _user = User() {
+            didSet {
+                self.users = [self._user]
+            }
+        }
+    }
 }
