@@ -14,6 +14,9 @@ struct MGCreateConfigurationView: View {
         NavigationStack {
             Form {
                 Section {
+                    LabeledContent("Description") {
+                        TextField("", text: $vm.descriptive)
+                    }
                     switch vm.protocolType {
                     case .vless:
                         MGConfigurationVLESSView(vm: vm)
@@ -27,37 +30,38 @@ struct MGCreateConfigurationView: View {
                 } header: {
                     Text("Server")
                 }
-                Section {
-                    Picker("Transport", selection: $vm.network) {
-                        ForEach(MGConfiguration.Network.allCases) { type in
-                            Text(type.description)
+                if isTransportAvailable {
+                    Section {
+                        Picker("Transport", selection: $vm.network) {
+                            ForEach(MGConfiguration.Network.allCases) { type in
+                                Text(type.description)
+                            }
                         }
+                        MGConfigurationNetworkView(vm: vm)
+                    } header: {
+                        Text("Transport")
                     }
-                    MGConfigurationNetworkView(vm: vm)
-                } header: {
-                    Text("Transport")
                 }
-                Section {
-                    Picker("Security", selection: $vm.security) {
-                        ForEach(MGConfiguration.Security.allCases) { type in
-                            Text(type.description)
+                if isSecurityAvailable {
+                    Section {
+                        Picker("Security", selection: $vm.security) {
+                            ForEach(MGConfiguration.Security.allCases) { type in
+                                Text(type.description)
+                            }
                         }
+                        MGConfigurationSecurityView(vm: vm)
+                    } header: {
+                        Text("Security")
                     }
-                    MGConfigurationSecurityView(vm: vm)
-                } header: {
-                    Text("Security")
                 }
-                Section {
-                    Toggle("Enable", isOn: $vm.mux.enabled)
-                    LabeledContent("Concurrency") {
-                        TextField("", value: $vm.mux.concurrency, format: .number)
-                    }
-                } header: {
-                    Text("Mux")
-                }
-                Section {
-                    LabeledContent("Description") {
-                        TextField("", text: $vm.descriptive)
+                if isMuxAvailable {
+                    Section {
+                        Toggle("Enable", isOn: $vm.mux.enabled)
+                        LabeledContent("Concurrency") {
+                            TextField("", value: $vm.mux.concurrency, format: .number)
+                        }
+                    } header: {
+                        Text("Mux")
                     }
                 }
             }
@@ -82,6 +86,33 @@ struct MGCreateConfigurationView: View {
                     .fontWeight(.medium)
                 }
             }
+        }
+    }
+    
+    private var isTransportAvailable: Bool {
+        switch vm.protocolType {
+        case .shadowsocks:
+             return false
+        case .vless, .vmess, .trojan:
+            return true
+        }
+    }
+    
+    private var isSecurityAvailable: Bool {
+        switch vm.protocolType {
+        case .shadowsocks:
+             return false
+        case .vless, .vmess, .trojan:
+            return true
+        }
+    }
+    
+    private var isMuxAvailable: Bool {
+        switch vm.protocolType {
+        case .shadowsocks:
+             return false
+        case .vless, .vmess, .trojan:
+            return true
         }
     }
 }
