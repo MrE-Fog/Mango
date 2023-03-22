@@ -32,7 +32,7 @@ struct MGConfigurationSecurityView: View {
                                         get: {
                                             vm.tls.alpn.contains(alpn.rawValue)
                                         },
-                                        set: { value, _ in
+                                        set: { value in
                                             if value {
                                                 vm.tls.alpn.append(alpn.rawValue)
                                             } else {

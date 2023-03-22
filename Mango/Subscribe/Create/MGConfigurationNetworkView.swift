@@ -53,7 +53,11 @@ struct MGConfigurationNetworkView: View {
             case .ws:
                 Section {
                     LabeledContent("Host") {
-                        TextField("", text: $vm.ws._host)
+                        TextField("", text: Binding(get: {
+                            vm.ws.headers["Host"] ?? ""
+                        }, set: { value in
+                            vm.ws.headers["Host"] = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                        }))
                     }
                     LabeledContent("Path") {
                         TextField("", text: $vm.ws.path)
@@ -62,7 +66,11 @@ struct MGConfigurationNetworkView: View {
             case .http:
                 Section {
                     LabeledContent("Host") {
-                        TextField("", text: $vm.http._host)
+                        TextField("", text: Binding(get: {
+                            vm.http.host.first ?? ""
+                        }, set: { value in
+                            vm.http.host = [value.trimmingCharacters(in: .whitespacesAndNewlines)]
+                        }))
                     }
                     LabeledContent("Path") {
                         TextField("", text: $vm.http.path)

@@ -18,10 +18,8 @@ struct MGConfigurationVLESSView: View {
         LabeledContent("UUID") {
             TextField("", text: $vm.vless.users[0].id)
         }
-        Picker("Encryption", selection: $vm.vless.users[0].encryption) {
-            ForEach(MGConfiguration.Encryption.vless) { encryption in
-                Text(encryption.description)
-            }
+        LabeledContent("Encryption") {
+            TextField("", text: $vm.vless.users[0].encryption)
         }
         LabeledContent("Flow") {
             Picker("Flow", selection: $vm.vless.users[0].flow) {

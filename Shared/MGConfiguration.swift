@@ -94,12 +94,9 @@ extension MGConfiguration {
                 return "Zero"
             }
         }
-        
-        public static let vless: [MGConfiguration.Encryption] = [.none, .auto, .aes_128_gcm, .chacha20_poly1305]
-        
-        public static let vmess: [MGConfiguration.Encryption] = [.none, .auto, .aes_128_gcm, .chacha20_poly1305, .zero]
-        
-        public static let quic:  [MGConfiguration.Encryption] = [.none, .aes_128_gcm, .chacha20_poly1305]
+                
+        public static let vmess: [MGConfiguration.Encryption] = [.chacha20_poly1305, .aes_128_gcm, .auto, .none, .zero]
+        public static let quic:  [MGConfiguration.Encryption] = [.chacha20_poly1305, .aes_128_gcm, .none]
     }
     
     public enum Security: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
@@ -273,15 +270,6 @@ extension MGConfiguration {
         public struct WS: Codable {
             public var path: String = "/"
             public var headers: [String: String] = [:]
-            public var _host: String = "" {
-                didSet {
-                    if self._host.isEmpty {
-                        self.headers = [:]
-                    } else {
-                        self.headers = ["Host": self._host]
-                    }
-                }
-            }
         }
         public struct HTTP: Codable {
             public var host: [String] = []
@@ -290,15 +278,6 @@ extension MGConfiguration {
             public var health_check_timeout: Int = 15
             public var method: String = "PUT"
             public var headers: [String: [String]] = [:]
-            public var _host: String = "" {
-                didSet {
-                    if self._host.isEmpty {
-                        self.host = []
-                    } else {
-                        self.host = [self._host]
-                    }
-                }
-            }
         }
         public struct QUIC: Codable {
             public struct Header: Codable {
@@ -326,7 +305,7 @@ extension MGConfiguration {
     public struct VLESS: Codable {
         public struct User: Codable {
             public var id: String = ""
-            public var encryption = Encryption.none
+            public var encryption: String = "none"
             public var flow = Flow.none
             public var level: Int = 0
         }
