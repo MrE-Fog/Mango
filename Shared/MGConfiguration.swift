@@ -64,7 +64,7 @@ extension MGConfiguration {
         }
     }
     
-    public enum Network: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+    public enum Transport: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
         
         public var id: Self { self }
         
@@ -245,17 +245,9 @@ extension MGConfiguration {
     public struct StreamSettings: Codable {
         public struct TLS: Codable {
             public var serverName: String = ""
-            public var rejectUnknownSni: Bool = false
             public var allowInsecure: Bool = false
             public var alpn: [String] = ["h2", "http/1.1"]
-            public var minVersion: String = "1.2"
-            public var maxVersion: String = "1.3"
-            public var cipherSuites: String = ""
-            public var certificates: [String] = []
-            public var disableSystemRoot: Bool = false
-            public var enableSessionResumption: Bool = false
             public var fingerprint: Fingerprint = .chrome
-            public var pinnedPeerCertificateChainSha256: [String] = []
         }
         public struct Reality: Codable {
             public var show: Bool = false
@@ -292,10 +284,6 @@ extension MGConfiguration {
         public struct HTTP: Codable {
             public var host: [String] = []
             public var path: String = "/"
-            public var read_idle_timeout: Int = 10
-            public var health_check_timeout: Int = 15
-            public var method: String = "PUT"
-            public var headers: [String: [String]] = [:]
         }
         public struct QUIC: Codable {
             public struct Header: Codable {
@@ -308,10 +296,6 @@ extension MGConfiguration {
         public struct GRPC: Codable {
             public var serviceName: String = ""
             public var multiMode: Bool = false
-            public var idle_timeout: Int = 60
-            public var health_check_timeout: Int = 20
-            public var permit_without_stream: Bool = false
-            public var initial_windows_size: Int = 0
         }
     }
     
@@ -320,7 +304,6 @@ extension MGConfiguration {
             public var id: String = ""
             public var encryption: String = "none"
             public var flow = Flow.none
-            public var level: Int = 0
         }
         public var address: String = ""
         public var port: Int = 443
@@ -332,7 +315,6 @@ extension MGConfiguration {
             public var id: String = ""
             public var alterId: Int = 0
             public var encryption = Encryption.auto
-            public var level: Int = 0
         }
         public var address: String = ""
         public var port: Int = 443
@@ -345,7 +327,6 @@ extension MGConfiguration {
             public var port: Int = 443
             public var password: String = ""
             public var email: String = ""
-            public var level: Int = 0
         }
         public var servers: [Server] = [Server()]
     }
@@ -398,22 +379,26 @@ extension MGConfiguration {
     }
 }
 
-public struct MGConfigurationModel: Codable {
+extension MGConfiguration {
+    
+    public struct Model: Codable {
         
-    public var vless        : MGConfiguration.VLESS?
-    public var vmess        : MGConfiguration.VMess?
-    public var trojan       : MGConfiguration.Trojan?
-    public var shadowsocks  : MGConfiguration.Shadowsocks?
-    
-    public var network  : MGConfiguration.Network
-    public var tcp      : MGConfiguration.StreamSettings.TCP? = nil
-    public var kcp      : MGConfiguration.StreamSettings.KCP? = nil
-    public var ws       : MGConfiguration.StreamSettings.WS? = nil
-    public var http     : MGConfiguration.StreamSettings.HTTP? = nil
-    public var quic     : MGConfiguration.StreamSettings.QUIC? = nil
-    public var grpc     : MGConfiguration.StreamSettings.GRPC? = nil
-    
-    public var security : MGConfiguration.Security
-    public var tls      : MGConfiguration.StreamSettings.TLS? = nil
-    public var reality  : MGConfiguration.StreamSettings.Reality? = nil
+        public var vless        : MGConfiguration.VLESS?
+        public var vmess        : MGConfiguration.VMess?
+        public var trojan       : MGConfiguration.Trojan?
+        public var shadowsocks  : MGConfiguration.Shadowsocks?
+        
+        public var network  : MGConfiguration.Transport
+        public var tcp      : MGConfiguration.StreamSettings.TCP? = nil
+        public var kcp      : MGConfiguration.StreamSettings.KCP? = nil
+        public var ws       : MGConfiguration.StreamSettings.WS? = nil
+        public var http     : MGConfiguration.StreamSettings.HTTP? = nil
+        public var quic     : MGConfiguration.StreamSettings.QUIC? = nil
+        public var grpc     : MGConfiguration.StreamSettings.GRPC? = nil
+        
+        public var security : MGConfiguration.Security
+        public var tls      : MGConfiguration.StreamSettings.TLS? = nil
+        public var reality  : MGConfiguration.StreamSettings.Reality? = nil
+    }
 }
+

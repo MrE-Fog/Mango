@@ -51,7 +51,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
                 let data = try generateConfiguration(
                     port: port,
                     protocolType: protocolType,
-                    configurationModel: try JSONDecoder().decode(MGConfigurationModel.self, from: try Data(contentsOf: fileURL))
+                    configurationModel: try JSONDecoder().decode(MGConfiguration.Model.self, from: try Data(contentsOf: fileURL))
                 )
                 let cache = URL(filePath: NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0], directoryHint: .isDirectory)
                 NSLog(String(data: data, encoding: .utf8) ?? "")
@@ -167,7 +167,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
         }
     }
     
-    private func generateConfiguration(port: Int, protocolType: MGConfiguration.ProtocolType, configurationModel: MGConfigurationModel) throws -> Data {
+    private func generateConfiguration(port: Int, protocolType: MGConfiguration.ProtocolType, configurationModel: MGConfiguration.Model) throws -> Data {
         var mapping: [String: Any] = [:]
         mapping["inbounds"] = {
             var mapping: [String: Any] = [:]

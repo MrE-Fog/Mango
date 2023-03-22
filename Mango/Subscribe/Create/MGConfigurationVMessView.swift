@@ -2,9 +2,9 @@ import SwiftUI
 
 struct MGConfigurationVMessView: View {
     
-    @ObservedObject private var vm: MGCreateConfigurationViewModel
+    @ObservedObject private var vm: MGCreateOrUpdateConfigurationViewModel
     
-    init(vm: MGCreateConfigurationViewModel) {
+    init(vm: MGCreateOrUpdateConfigurationViewModel) {
         self._vm = ObservedObject(initialValue: vm)
     }
     

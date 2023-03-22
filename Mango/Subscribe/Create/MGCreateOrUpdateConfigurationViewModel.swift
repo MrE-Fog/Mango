@@ -1,19 +1,19 @@
 import Foundation
 
-final class MGCreateConfigurationViewModel: ObservableObject {
+final class MGCreateOrUpdateConfigurationViewModel: ObservableObject {
     
     @Published var vless        = MGConfiguration.VLESS()
     @Published var vmess        = MGConfiguration.VMess()
     @Published var trojan       = MGConfiguration.Trojan()
     @Published var shadowsocks  = MGConfiguration.Shadowsocks()
     
-    @Published var network  = MGConfiguration.Network.tcp
-    @Published var tcp      = MGConfiguration.StreamSettings.TCP()
-    @Published var kcp      = MGConfiguration.StreamSettings.KCP()
-    @Published var ws       = MGConfiguration.StreamSettings.WS()
-    @Published var http     = MGConfiguration.StreamSettings.HTTP()
-    @Published var quic     = MGConfiguration.StreamSettings.QUIC()
-    @Published var grpc     = MGConfiguration.StreamSettings.GRPC()
+    @Published var transport    = MGConfiguration.Transport.tcp
+    @Published var tcp          = MGConfiguration.StreamSettings.TCP()
+    @Published var kcp          = MGConfiguration.StreamSettings.KCP()
+    @Published var ws           = MGConfiguration.StreamSettings.WS()
+    @Published var http         = MGConfiguration.StreamSettings.HTTP()
+    @Published var quic         = MGConfiguration.StreamSettings.QUIC()
+    @Published var grpc         = MGConfiguration.StreamSettings.GRPC()
     
     @Published var security = MGConfiguration.Security.none
     @Published var tls      = MGConfiguration.StreamSettings.TLS()
@@ -24,7 +24,7 @@ final class MGCreateConfigurationViewModel: ObservableObject {
     let id: UUID
     let protocolType: MGConfiguration.ProtocolType
     
-    init(id: UUID, protocolType: MGConfiguration.ProtocolType, descriptive: String, configurationModel: MGConfigurationModel?) {
+    init(id: UUID, descriptive: String, protocolType: MGConfiguration.ProtocolType, configurationModel: MGConfiguration.Model?) {
         self.id = id
         self.protocolType = protocolType
         self.descriptive = descriptive
@@ -38,7 +38,7 @@ final class MGCreateConfigurationViewModel: ObservableObject {
         configurationModel.trojan.flatMap { self.trojan = $0 }
         configurationModel.shadowsocks.flatMap { self.shadowsocks = $0 }
         
-        self.network = configurationModel.network
+        self.transport = configurationModel.network
         configurationModel.tcp.flatMap { self.tcp = $0 }
         configurationModel.kcp.flatMap { self.kcp = $0 }
         configurationModel.ws.flatMap { self.ws = $0 }
@@ -77,9 +77,9 @@ final class MGCreateConfigurationViewModel: ObservableObject {
         FileManager.default.createFile(atPath: destinationURL.path(percentEncoded: false), contents: data)
     }
     
-    private func createConfigurationModel() -> MGConfigurationModel {
-        var model = MGConfigurationModel(
-            network: self.network,
+    private func createConfigurationModel() -> MGConfiguration.Model {
+        var model = MGConfiguration.Model(
+            network: self.transport,
             security: self.security
         )
         switch self.protocolType {
@@ -92,7 +92,7 @@ final class MGCreateConfigurationViewModel: ObservableObject {
         case .shadowsocks:
             model.shadowsocks = self.shadowsocks
         }
-        switch self.network {
+        switch self.transport {
         case .tcp:
             model.tcp = self.tcp
         case .kcp:

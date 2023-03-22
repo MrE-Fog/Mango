@@ -1,20 +1,20 @@
 import SwiftUI
 
-struct MGConfigurationNetworkView: View {
+struct MGConfigurationTransportView: View {
     
-    @ObservedObject private var vm: MGCreateConfigurationViewModel
+    @ObservedObject private var vm: MGCreateOrUpdateConfigurationViewModel
     
-    init(vm: MGCreateConfigurationViewModel) {
+    init(vm: MGCreateOrUpdateConfigurationViewModel) {
         self._vm = ObservedObject(initialValue: vm)
     }
         
     var body: some View {
-        Picker("Transport", selection: $vm.network) {
-            ForEach(MGConfiguration.Network.allCases) { type in
+        Picker("Transport", selection: $vm.transport) {
+            ForEach(MGConfiguration.Transport.allCases) { type in
                 Text(type.description)
             }
         }
-        switch vm.network {
+        switch vm.transport {
         case .tcp:
             EmptyView()
         case .kcp:

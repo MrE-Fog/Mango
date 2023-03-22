@@ -11,26 +11,26 @@ fileprivate extension MGConfiguration {
     }
 }
 
-private struct MGEdit: Identifiable {
+private struct MGConfigurationEditModel: Identifiable {
     
     let id: UUID
     let name: String
-    let protocolType: MGConfiguration.ProtocolType
-    let configurationModel: MGConfigurationModel
+    let type: MGConfiguration.ProtocolType
+    let model: MGConfiguration.Model
     
     init(configuration: MGConfiguration) throws {
         guard let id = UUID(uuidString: configuration.id) else {
             throw NSError.newError("获取唯一标识失败")
         }
-        self.id = id
-        self.name = configuration.attributes.alias
         guard let type = configuration.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) else {
             throw NSError.newError("不支持的类型")
         }
-        self.protocolType = type
+        self.id = id
+        self.name = configuration.attributes.alias
+        self.type = type
         let fileURL = MGConstant.configDirectory.appending(component: "\(configuration.id)/config.\(MGConfigurationFormat.json.rawValue)")
         let data = try Data(contentsOf: fileURL)
-        self.configurationModel = try JSONDecoder().decode(MGConfigurationModel.self, from: data)
+        self.model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
     }
 }
 
@@ -44,7 +44,7 @@ struct MGConfigurationListView: View {
     @State private var isRenameAlertPresented = false
     @State private var configurationName: String = ""
     
-    @State private var edit: MGEdit?
+    @State private var editModel: MGConfigurationEditModel?
     
     @State private var location: MGConfigurationLocation?
     
@@ -75,8 +75,8 @@ struct MGConfigurationListView: View {
                         }
                     }
                     .fullScreenCover(item: $protocolType, onDismiss: { configurationListManager.reload() }) { protocolType in
-                        MGCreateConfigurationView(
-                            vm: MGCreateConfigurationViewModel(id: UUID(), protocolType: protocolType, descriptive: "", configurationModel: nil)
+                        MGCreateOrUpdateConfigurationView(
+                            vm: MGCreateOrUpdateConfigurationViewModel(id: UUID(), descriptive: "", protocolType: protocolType, configurationModel: nil)
                         )
                     }
                 } header: {
@@ -155,9 +155,9 @@ struct MGConfigurationListView: View {
             .sheet(item: $location) { location in
                 MGConfigurationLoadView(location: location)
             }
-            .fullScreenCover(item: $edit, onDismiss: { configurationListManager.reload() }) { e in
-                MGCreateConfigurationView(
-                    vm: MGCreateConfigurationViewModel(id: e.id, protocolType: e.protocolType, descriptive: e.name, configurationModel: e.configurationModel)
+            .fullScreenCover(item: $editModel, onDismiss: { configurationListManager.reload() }) { em in
+                MGCreateOrUpdateConfigurationView(
+                    vm: MGCreateOrUpdateConfigurationViewModel(id: em.id, descriptive: em.name, protocolType: em.type, configurationModel: em.model)
                 )
             }
         }
@@ -168,7 +168,7 @@ struct MGConfigurationListView: View {
         Button {
             if configuration.isUserCreated {
                 do {
-                    self.edit = try MGEdit(configuration: configuration)
+                    self.editModel = try MGConfigurationEditModel(configuration: configuration)
                 } catch {
                     MGNotification.send(title: "", subtitle: "", body: "加载文件失败, 原因: \(error.localizedDescription)")
                 }

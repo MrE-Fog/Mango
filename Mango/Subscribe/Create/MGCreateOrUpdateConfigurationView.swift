@@ -1,12 +1,12 @@
 import SwiftUI
 
-struct MGCreateConfigurationView: View {
+struct MGCreateOrUpdateConfigurationView: View {
     
-    @ObservedObject private var vm: MGCreateConfigurationViewModel
+    @ObservedObject private var vm: MGCreateOrUpdateConfigurationViewModel
     
     @Environment(\.dismiss) private var dismiss
         
-    init(vm: MGCreateConfigurationViewModel) {
+    init(vm: MGCreateOrUpdateConfigurationViewModel) {
         self._vm = ObservedObject(initialValue: vm)
     }
     
@@ -32,7 +32,7 @@ struct MGCreateConfigurationView: View {
                 }
                 if vm.protocolType.isTransportAvailable {
                     Section {
-                        MGConfigurationNetworkView(vm: vm)
+                        MGConfigurationTransportView(vm: vm)
                     } header: {
                         Text("Transport")
                     }
