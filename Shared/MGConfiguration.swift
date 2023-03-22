@@ -397,3 +397,25 @@ extension MGConfiguration {
         public var servers: [Server] = [Server()]
     }
 }
+
+public enum MGTransportModel: Codable {
+    case tcp(MGConfiguration.StreamSettings.TCP)
+    case kcp(MGConfiguration.StreamSettings.KCP)
+    case ws(MGConfiguration.StreamSettings.WS)
+    case http(MGConfiguration.StreamSettings.HTTP)
+    case quic(MGConfiguration.StreamSettings.QUIC)
+    case grpc(MGConfiguration.StreamSettings.GRPC)
+}
+
+public enum MGSecurityModel: Codable {
+    case none
+    case tls(MGConfiguration.StreamSettings.TLS)
+    case reality(MGConfiguration.StreamSettings.Reality)
+}
+
+public enum MGProtocolModel: Codable {
+    case vless(MGConfiguration.VLESS, MGTransportModel, MGSecurityModel)
+    case vmess(MGConfiguration.VMess, MGTransportModel, MGSecurityModel)
+    case trojan(MGConfiguration.Trojan, MGTransportModel, MGSecurityModel)
+    case shadowsocks(MGConfiguration.Shadowsocks)
+}

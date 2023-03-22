@@ -1,5 +1,27 @@
 import SwiftUI
 
+fileprivate extension MGConfiguration {
+    
+    var isUserCreated: Bool {
+        self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) != nil
+    }
+    
+    var isLocal: Bool {
+        self.attributes.source.isFileURL || self.isUserCreated
+    }
+}
+
+struct IdentifiableWrapper<Object>: Identifiable {
+    
+    let id: String
+    let obj: Object
+    
+    init(id: String, obj: Object) {
+        self.id = id
+        self.obj = obj
+    }
+}
+
 struct MGConfigurationListView: View {
     
     @Environment(\.dismiss) private var dismiss
@@ -8,8 +30,9 @@ struct MGConfigurationListView: View {
     @EnvironmentObject private var configurationListManager: MGConfigurationListManager
         
     @State private var isRenameAlertPresented = false
-    @State private var configurationItem: MGConfiguration?
     @State private var configurationName: String = ""
+    
+    @State private var editInfoWrapper: IdentifiableWrapper<(MGConfiguration.ProtocolType, MGProtocolModel)>?
     
     @State private var location: MGConfigurationLocation?
     
@@ -39,8 +62,8 @@ struct MGConfigurationListView: View {
                             }
                         }
                     }
-                    .fullScreenCover(item: $protocolType) { protocolType in
-                        MGCreateConfigurationView(protocolType: protocolType)
+                    .fullScreenCover(item: $protocolType, onDismiss: { configurationListManager.reload() }) { protocolType in
+                        MGCreateConfigurationView(vm: MGCreateConfigurationViewModel(protocolType: protocolType))
                     }
                 } header: {
                     Text("创建配置")
@@ -102,111 +125,110 @@ struct MGConfigurationListView: View {
                                 }
                             }
                             .contextMenu {
-                                Button {
-                                    self.configurationName = configuration.attributes.alias
-                                    self.configurationItem = configuration
-                                    self.isRenameAlertPresented.toggle()
-                                } label: {
-                                    Label("重命名", systemImage: "square.and.pencil")
-                                }
-                                Button {
-                                    Task(priority: .userInitiated) {
-                                        do {
-                                            try await configurationListManager.update(configuration: configuration)
-                                            MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"更新成功")
-                                            if configuration.id == current.wrappedValue {
-                                                guard let status = packetTunnelManager.status, status == .connected else {
-                                                    return
-                                                }
-                                                packetTunnelManager.stop()
-                                                do {
-                                                    try await packetTunnelManager.start()
-                                                } catch {
-                                                    debugPrint(error.localizedDescription)
-                                                }
-                                            }
-                                        } catch {
-                                            MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"更新失败, 原因: \(error.localizedDescription)")
-                                        }
-                                    }
-                                } label: {
-                                    Label("更新", systemImage: "arrow.triangle.2.circlepath")
-                                }
-                                .disabled(configurationListManager.downloadingConfigurationIDs.contains(configuration.id) || configuration.attributes.source.isFileURL)
+                                RenameOrEditButton(configuration: configuration)
+                                UpdateButton(configuration: configuration)
                                 Divider()
-                                Button(role: .destructive) {
-                                    do {
-                                        try configurationListManager.delete(configuration: configuration)
-                                        MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"删除成功")
-                                        if configuration.id == current.wrappedValue {
-                                            current.wrappedValue = ""
-                                            packetTunnelManager.stop()
-                                        }
-                                    } catch {
-                                        MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"删除失败, 原因: \(error.localizedDescription)")
-                                    }
-                                } label: {
-                                    Label("删除", systemImage: "trash")
-                                }
-                                .disabled(configurationListManager.downloadingConfigurationIDs.contains(configuration.id))
+                                DeleteButton(configuration: configuration)
                             }
                         }
                     }
                 } header: {
                     Text("配置列表")
-                } footer: {
-                    Text("支持 JSON、YAML、TOML 格式配置")
                 }
             }
             .navigationTitle(Text("配置管理"))
             .navigationBarTitleDisplayMode(.large)
-            .alert("重命名", isPresented: $isRenameAlertPresented, presenting: configurationItem) { item in
-                TextField("请输入配置名称", text: $configurationName)
-                Button("确定") {
-                    let name = configurationName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !(name == item.attributes.alias || name.isEmpty) else {
-                        return
-                    }
-                    do {
-                        try configurationListManager.rename(configuration: item, name: name)
-                    } catch {
-                        MGNotification.send(title: "", subtitle: "", body: "重命名失败, 原因: \(error.localizedDescription)")
-                    }
-                }
-                Button("取消", role: .cancel) {}
-            }
             .sheet(item: $location) { location in
                 MGConfigurationLoadView(location: location)
             }
+            .fullScreenCover(item: $editInfoWrapper) { wrapper in
+                MGCreateConfigurationView(vm: MGCreateConfigurationViewModel(protocolType: wrapper.obj.0, protocolModel: wrapper.obj.1))
+            }
         }
     }
-}
-
-
-final class MGCreateConfigurationViewModel: ObservableObject {
     
-    @Published var vless        = MGConfiguration.VLESS()
-    @Published var vmess        = MGConfiguration.VMess()
-    @Published var trojan       = MGConfiguration.Trojan()
-    @Published var shadowsocks  = MGConfiguration.Shadowsocks()
+    @ViewBuilder
+    private func RenameOrEditButton(configuration: MGConfiguration) -> some View {
+        Button {
+            if configuration.isUserCreated {
+                do {
+                    guard let prototolType = configuration.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) else {
+                        return
+                    }
+                    let data = try Data(contentsOf: MGConstant.assetDirectory.appending(component: "\(configuration.id)/config.\(MGConfigurationFormat.json.rawValue)"))
+                    let prototolModel = try JSONDecoder().decode(MGProtocolModel.self, from: data)
+                    self.editInfoWrapper = IdentifiableWrapper(id: configuration.id, obj: (prototolType, prototolModel))
+                } catch {
+                    MGNotification.send(title: "", subtitle: "", body: "加载文件失败, 原因: \(error.localizedDescription)")
+                }
+            } else {
+                self.configurationName = configuration.attributes.alias
+                self.isRenameAlertPresented.toggle()
+            }
+        } label: {
+            Label(configuration.isUserCreated ? "编辑" : "重命名", systemImage: "square.and.pencil")
+        }
+        .alert("重命名", isPresented: $isRenameAlertPresented) {
+            TextField("请输入配置名称", text: $configurationName)
+            Button("确定") {
+                let name = configurationName.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !(name == configuration.attributes.alias || name.isEmpty) else {
+                    return
+                }
+                do {
+                    try configurationListManager.rename(configuration: configuration, name: name)
+                } catch {
+                    MGNotification.send(title: "", subtitle: "", body: "重命名失败, 原因: \(error.localizedDescription)")
+                }
+            }
+            Button("取消", role: .cancel) {}
+        }
+    }
     
-    @Published var network  = MGConfiguration.Network.tcp
-    @Published var tcp      = MGConfiguration.StreamSettings.TCP()
-    @Published var kcp      = MGConfiguration.StreamSettings.KCP()
-    @Published var ws       = MGConfiguration.StreamSettings.WS()
-    @Published var http     = MGConfiguration.StreamSettings.HTTP()
-    @Published var quic     = MGConfiguration.StreamSettings.QUIC()
-    @Published var grpc     = MGConfiguration.StreamSettings.GRPC()
+    @ViewBuilder
+    private func UpdateButton(configuration: MGConfiguration) -> some View {
+        Button {
+            Task(priority: .userInitiated) {
+                do {
+                    try await configurationListManager.update(configuration: configuration)
+                    MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"更新成功")
+                    if configuration.id == current.wrappedValue {
+                        guard let status = packetTunnelManager.status, status == .connected else {
+                            return
+                        }
+                        packetTunnelManager.stop()
+                        do {
+                            try await packetTunnelManager.start()
+                        } catch {
+                            debugPrint(error.localizedDescription)
+                        }
+                    }
+                } catch {
+                    MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"更新失败, 原因: \(error.localizedDescription)")
+                }
+            }
+        } label: {
+            Label("更新", systemImage: "arrow.triangle.2.circlepath")
+        }
+        .disabled(configurationListManager.downloadingConfigurationIDs.contains(configuration.id) || configuration.isLocal)
+    }
     
-    @Published var security = MGConfiguration.Security.none
-    @Published var tls      = MGConfiguration.StreamSettings.TLS()
-    @Published var reality  = MGConfiguration.StreamSettings.Reality()
-        
-    @Published var descriptive: String = ""
-    
-    let protocolType: MGConfiguration.ProtocolType
-    
-    init(protocolType: MGConfiguration.ProtocolType) {
-        self.protocolType = protocolType
+    @ViewBuilder
+    private func DeleteButton(configuration: MGConfiguration) -> some View {
+        Button(role: .destructive) {
+            do {
+                try configurationListManager.delete(configuration: configuration)
+                MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"删除成功")
+                if configuration.id == current.wrappedValue {
+                    current.wrappedValue = ""
+                    packetTunnelManager.stop()
+                }
+            } catch {
+                MGNotification.send(title: "", subtitle: "", body: "\"\(configuration.attributes.alias)\"删除失败, 原因: \(error.localizedDescription)")
+            }
+        } label: {
+            Label("删除", systemImage: "trash")
+        }
+        .disabled(configurationListManager.downloadingConfigurationIDs.contains(configuration.id))
     }
 }

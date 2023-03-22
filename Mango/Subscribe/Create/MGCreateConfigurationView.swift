@@ -6,8 +6,8 @@ struct MGCreateConfigurationView: View {
     
     @Environment(\.dismiss) private var dismiss
         
-    init(protocolType: MGConfiguration.ProtocolType) {
-        self._vm = ObservedObject(initialValue: MGCreateConfigurationViewModel(protocolType: protocolType))
+    init(vm: MGCreateConfigurationViewModel) {
+        self._vm = ObservedObject(initialValue: vm)
     }
     
     var body: some View {
@@ -59,7 +59,12 @@ struct MGCreateConfigurationView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        dismiss()
+                        do {
+                            try vm.save()
+                            dismiss()
+                        } catch {
+                            debugPrint(error.localizedDescription)
+                        }
                     } label: {
                         Text("Done")
                     }

@@ -66,6 +66,7 @@
 		70F82CD629C990E60072B334 /* MGConfigurationShadowsocksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */; };
 		70F82CD829C990FF0072B334 /* MGConfigurationTrojanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */; };
 		70F82CDA29CA94270072B334 /* MGToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD929CA94270072B334 /* MGToggleButton.swift */; };
+		70F82CDC29CAC2D50072B334 /* MGCreateConfigurationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CDB29CAC2D50072B334 /* MGCreateConfigurationViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -170,6 +171,7 @@
 		70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationShadowsocksView.swift; sourceTree = "<group>"; };
 		70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationTrojanView.swift; sourceTree = "<group>"; };
 		70F82CD929CA94270072B334 /* MGToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGToggleButton.swift; sourceTree = "<group>"; };
+		70F82CDB29CAC2D50072B334 /* MGCreateConfigurationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGCreateConfigurationViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -374,6 +376,7 @@
 		70F82CCA29C978400072B334 /* Create */ = {
 			isa = PBXGroup;
 			children = (
+				70F82CDB29CAC2D50072B334 /* MGCreateConfigurationViewModel.swift */,
 				70F82CCB29C978650072B334 /* MGCreateConfigurationView.swift */,
 				70F82CCD29C978850072B334 /* MGConfigurationVLESSView.swift */,
 				70F82CCF29C9789F0072B334 /* MGConfigurationVMessView.swift */,
@@ -521,6 +524,7 @@
 				70DE0D7329A62C4E00B3E343 /* MGHomeView.swift in Sources */,
 				70F82CB629C2E6B40072B334 /* MGContentView.swift in Sources */,
 				70C9EDD82951587D00B6995B /* MGResetView.swift in Sources */,
+				70F82CDC29CAC2D50072B334 /* MGCreateConfigurationViewModel.swift in Sources */,
 				70B89C1E29C17C29003DA577 /* MGSniffingEntranceView.swift in Sources */,
 				70F82CD429C978CF0072B334 /* MGConfigurationSecurityView.swift in Sources */,
 				706DB6CB29BAE954002F22C7 /* MGConfigurationView.swift in Sources */,

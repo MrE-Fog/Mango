@@ -13,7 +13,7 @@ final class MGConfigurationListManager: ObservableObject {
     private func loadConfigurations() -> [MGConfiguration] {
         do {
             let children = try FileManager.default.contentsOfDirectory(at: MGConstant.configDirectory, includingPropertiesForKeys: nil)
-            return children.compactMap(MGConfiguration.init(url:)).sorted(by: { $0.creationDate < $1.creationDate })
+            return children.compactMap(MGConfiguration.init(url:)).sorted(by: { $0.creationDate > $1.creationDate })
         } catch {
             return []
         }
