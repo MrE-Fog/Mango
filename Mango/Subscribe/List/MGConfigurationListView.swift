@@ -1,5 +1,20 @@
 import SwiftUI
 
+extension MGConfiguration {
+    
+    var typeString: String {
+        if let pt = self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
+            return pt.description
+        } else {
+            if self.attributes.source.isFileURL {
+                return "本地"
+            } else {
+                return "远程"
+            }
+        }
+    }
+}
+
 fileprivate extension MGConfiguration {
     
     var isUserCreated: Bool {
@@ -100,44 +115,11 @@ struct MGConfigurationListView: View {
                 }
                 Section {
                     if configurationListManager.configurations.isEmpty {
-                        HStack {
-                            Spacer()
-                            VStack(spacing: 20) {
-                                Image(systemName: "doc.text.magnifyingglass")
-                                    .font(.largeTitle)
-                                Text("暂无配置")
-                            }
-                            .foregroundColor(.secondary)
-                            .padding()
-                            Spacer()
-                        }
+                        NoConfigurationView()
                     } else {
                         ForEach(configurationListManager.configurations) { configuration in
-                            HStack(alignment: .center, spacing: 8) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(configuration.attributes.alias)
-                                        .lineLimit(1)
-                                        .foregroundColor(.primary)
-                                        .fontWeight(.medium)
-                                    TimelineView(.periodic(from: Date(), by: 1)) { _ in
-                                        Text(configuration.attributes.leastUpdated.formatted(.relative(presentation: .numeric)))
-                                            .lineLimit(1)
-                                            .foregroundColor(.secondary)
-                                            .font(.callout)
-                                            .fontWeight(.light)
-                                    }
-                                }
-                                Spacer()
-                                if configurationListManager.downloadingConfigurationIDs.contains(configuration.id) {
-                                    ProgressView()
-                                }
-                            }
-                            .contextMenu {
-                                RenameOrEditButton(configuration: configuration)
-                                UpdateButton(configuration: configuration)
-                                Divider()
-                                DeleteButton(configuration: configuration)
-                            }
+                            ConfigurationItemView(configuration: configuration)
+                                .listRowBackground(current.wrappedValue == configuration.id ? Color.accentColor : nil)
                         }
                     }
                 } header: {
@@ -154,6 +136,61 @@ struct MGConfigurationListView: View {
                     vm: MGCreateOrUpdateConfigurationViewModel(id: em.id, descriptive: em.name, protocolType: em.type, configurationModel: em.model)
                 )
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func ConfigurationItemView(configuration: MGConfiguration) -> some View {
+        Button {
+            guard current.wrappedValue != configuration.id else {
+                return
+            }
+            current.wrappedValue = configuration.id
+        } label: {
+            HStack(alignment: .center, spacing: 4) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(configuration.attributes.alias)
+                        .foregroundColor(current.wrappedValue == configuration.id ? .white : .primary)
+                        .fontWeight(.medium)
+                    Text(configuration.typeString)
+                        .foregroundColor(current.wrappedValue == configuration.id ? .white : .primary)
+                        .font(.caption)
+                        .fontWeight(.light)
+                }
+                Spacer()
+                if configurationListManager.downloadingConfigurationIDs.contains(configuration.id) {
+                    ProgressView()
+                } else {
+                    TimelineView(.periodic(from: Date(), by: 1)) { _ in
+                        Text(configuration.attributes.leastUpdated.formatted(.relative(presentation: .numeric)))
+                            .foregroundColor(current.wrappedValue == configuration.id ? .white : .primary)
+                            .font(.callout)
+                            .fontWeight(.light)
+                    }
+                }
+            }
+            .lineLimit(1)
+        }
+        .contextMenu {
+            RenameOrEditButton(configuration: configuration)
+            UpdateButton(configuration: configuration)
+            Divider()
+            DeleteButton(configuration: configuration)
+        }
+    }
+    
+    @ViewBuilder
+    private func NoConfigurationView() -> some View {
+        HStack {
+            Spacer()
+            VStack(spacing: 20) {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.largeTitle)
+                Text("暂无配置")
+            }
+            .foregroundColor(.secondary)
+            .padding()
+            Spacer()
         }
     }
     

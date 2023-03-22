@@ -28,7 +28,7 @@ struct MGHomeView: View {
                         Section {
                             MGConfigurationView(current: current)
                         } header: {
-                            Text("配置")
+                            Text("当前配置")
                         }
                     }
                     .environmentObject(packetTunnelManager)
