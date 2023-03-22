@@ -25,21 +25,27 @@ struct MGCreateConfigurationView: View {
                         MGConfigurationShadowsocksView(vm: vm)
                     }
                 } header: {
-                    Text("Setting")
+                    Text("Server")
                 }
                 Section {
-                    NavigationLink {
-                        MGConfigurationNetworkView(vm: vm)
-                    } label: {
-                        LabeledContent("Network", value: vm.network.description)
+                    Picker("Transport", selection: $vm.network) {
+                        ForEach(MGConfiguration.Network.allCases) { type in
+                            Text(type.description)
+                        }
                     }
-                    NavigationLink {
-                        MGConfigurationSecurityView(vm: vm)
-                    } label: {
-                        LabeledContent("Security", value: vm.security.description)
-                    }
+                    MGConfigurationNetworkView(vm: vm)
                 } header: {
-                    Text("Stream Setting")
+                    Text("Transport")
+                }
+                Section {
+                    Picker("Security", selection: $vm.security) {
+                        ForEach(MGConfiguration.Security.allCases) { type in
+                            Text(type.description)
+                        }
+                    }
+                    MGConfigurationSecurityView(vm: vm)
+                } header: {
+                    Text("Security")
                 }
                 Section {
                     Toggle("Enable", isOn: $vm.mux.enabled)
