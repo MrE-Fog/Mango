@@ -11,14 +11,26 @@ fileprivate extension MGConfiguration {
     }
 }
 
-struct IdentifiableWrapper<Object>: Identifiable {
+private struct MGEdit: Identifiable {
     
-    let id: String
-    let obj: Object
+    let id: UUID
+    let name: String
+    let protocolType: MGConfiguration.ProtocolType
+    let protocolModel: MGProtocolModel
     
-    init(id: String, obj: Object) {
+    init(configuration: MGConfiguration) throws {
+        guard let id = UUID(uuidString: configuration.id) else {
+            throw NSError.newError("获取唯一标识失败")
+        }
         self.id = id
-        self.obj = obj
+        self.name = configuration.attributes.alias
+        guard let type = configuration.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) else {
+            throw NSError.newError("不支持的类型")
+        }
+        self.protocolType = type
+        let fileURL = MGConstant.configDirectory.appending(component: "\(configuration.id)/config.\(MGConfigurationFormat.json.rawValue)")
+        let data = try Data(contentsOf: fileURL)
+        self.protocolModel = try JSONDecoder().decode(MGProtocolModel.self, from: data)
     }
 }
 
@@ -32,7 +44,7 @@ struct MGConfigurationListView: View {
     @State private var isRenameAlertPresented = false
     @State private var configurationName: String = ""
     
-    @State private var editInfoWrapper: IdentifiableWrapper<(MGConfiguration.ProtocolType, MGProtocolModel)>?
+    @State private var edit: MGEdit?
     
     @State private var location: MGConfigurationLocation?
     
@@ -63,7 +75,7 @@ struct MGConfigurationListView: View {
                         }
                     }
                     .fullScreenCover(item: $protocolType, onDismiss: { configurationListManager.reload() }) { protocolType in
-                        MGCreateConfigurationView(vm: MGCreateConfigurationViewModel(protocolType: protocolType))
+                        MGCreateConfigurationView(vm: MGCreateConfigurationViewModel(id: UUID(), protocolType: protocolType))
                     }
                 } header: {
                     Text("创建配置")
@@ -141,8 +153,10 @@ struct MGConfigurationListView: View {
             .sheet(item: $location) { location in
                 MGConfigurationLoadView(location: location)
             }
-            .fullScreenCover(item: $editInfoWrapper) { wrapper in
-                MGCreateConfigurationView(vm: MGCreateConfigurationViewModel(protocolType: wrapper.obj.0, protocolModel: wrapper.obj.1))
+            .fullScreenCover(item: $edit, onDismiss: { configurationListManager.reload() }) { e in
+                MGCreateConfigurationView(
+                    vm: MGCreateConfigurationViewModel(id: e.id, protocolType: e.protocolType, descriptive: e.name, protocolModel: e.protocolModel)
+                )
             }
         }
     }
@@ -152,12 +166,7 @@ struct MGConfigurationListView: View {
         Button {
             if configuration.isUserCreated {
                 do {
-                    guard let prototolType = configuration.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) else {
-                        return
-                    }
-                    let data = try Data(contentsOf: MGConstant.assetDirectory.appending(component: "\(configuration.id)/config.\(MGConfigurationFormat.json.rawValue)"))
-                    let prototolModel = try JSONDecoder().decode(MGProtocolModel.self, from: data)
-                    self.editInfoWrapper = IdentifiableWrapper(id: configuration.id, obj: (prototolType, prototolModel))
+                    self.edit = try MGEdit(configuration: configuration)
                 } catch {
                     MGNotification.send(title: "", subtitle: "", body: "加载文件失败, 原因: \(error.localizedDescription)")
                 }

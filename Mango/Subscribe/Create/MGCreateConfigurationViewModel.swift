@@ -24,27 +24,90 @@ final class MGCreateConfigurationViewModel: ObservableObject {
     let protocolType: MGConfiguration.ProtocolType
     let isEditMode: Bool
     
-    init(protocolType: MGConfiguration.ProtocolType, protocolModel: MGProtocolModel? = nil) {
+    let id: UUID
+    
+    init(id: UUID, protocolType: MGConfiguration.ProtocolType, descriptive: String = "", protocolModel: MGProtocolModel? = nil) {
+        self.id = id
         self.protocolType = protocolType
-        self.isEditMode = protocolModel != nil
+        self.descriptive = descriptive
+        guard let protocolModel = protocolModel else {
+            self.isEditMode = false
+            return
+        }
+        self.isEditMode = true
+        func updateNetwork(model: MGTransportModel) {
+            switch model {
+            case .tcp(let tcp):
+                self.network = .tcp
+                self.tcp = tcp
+            case .kcp(let kcp):
+                self.network = .kcp
+                self.kcp = kcp
+            case .ws(let ws):
+                self.network = .ws
+                self.ws = ws
+            case .http(let http):
+                self.network = .http
+                self.http = http
+            case .quic(let quic):
+                self.network = .quic
+                self.quic = quic
+            case .grpc(let grpc):
+                self.network = .grpc
+                self.grpc = grpc
+            }
+        }
+        func updateSecurity(model: MGSecurityModel) {
+            switch model {
+            case .none:
+                self.security = .none
+            case .tls(let tls):
+                self.security = .tls
+                self.tls = tls
+            case .reality(let reality):
+                self.security = .reality
+                self.reality = reality
+            }
+        }
+        switch protocolModel {
+        case .vless(let vless, let network, let security):
+            self.vless = vless
+            updateNetwork(model: network)
+            updateSecurity(model: security)
+        case .vmess(let vmess, let network, let security):
+            self.vmess = vmess
+            updateNetwork(model: network)
+            updateSecurity(model: security)
+        case .trojan(let trojan, let network, let security):
+            self.trojan = trojan
+            updateNetwork(model: network)
+            updateSecurity(model: security)
+        case .shadowsocks(let shadowsocks):
+            self.shadowsocks = shadowsocks
+        }
     }
     
     func save() throws {
-        let id = UUID()
-        let folderURL = MGConstant.configDirectory.appending(component: "\(id.uuidString)")
+        let folderURL = MGConstant.configDirectory.appending(component: "\(self.id.uuidString)")
         let attributes = MGConfiguration.Attributes(
             alias: descriptive.trimmingCharacters(in: .whitespacesAndNewlines),
             source: URL(string: "\(protocolType.rawValue)://")!,
             leastUpdated: Date(),
             format: .json
         )
-        try FileManager.default.createDirectory(
-            at: folderURL,
-            withIntermediateDirectories: true,
-            attributes: [
+        if isEditMode {
+            try FileManager.default.setAttributes([
                 MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]
-            ]
-        )
+            ], ofItemAtPath: folderURL.path(percentEncoded: false))
+        } else {
+            try FileManager.default.createDirectory(
+                at: folderURL,
+                withIntermediateDirectories: true,
+                attributes: [
+                    MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]
+                ]
+            )
+        }
         let destinationURL = folderURL.appending(component: "config.\(MGConfigurationFormat.json.rawValue)")
         let data = try JSONEncoder().encode(self.createProtocolModel())
         FileManager.default.createFile(atPath: destinationURL.path(percentEncoded: false), contents: data)
