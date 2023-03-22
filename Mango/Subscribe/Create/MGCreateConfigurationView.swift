@@ -32,11 +32,6 @@ struct MGCreateConfigurationView: View {
                 }
                 if vm.protocolType.isTransportAvailable {
                     Section {
-                        Picker("Transport", selection: $vm.network) {
-                            ForEach(MGConfiguration.Network.allCases) { type in
-                                Text(type.description)
-                            }
-                        }
                         MGConfigurationNetworkView(vm: vm)
                     } header: {
                         Text("Transport")
@@ -44,24 +39,9 @@ struct MGCreateConfigurationView: View {
                 }
                 if vm.protocolType.isSecurityAvailable {
                     Section {
-                        Picker("Security", selection: $vm.security) {
-                            ForEach(MGConfiguration.Security.allCases) { type in
-                                Text(type.description)
-                            }
-                        }
                         MGConfigurationSecurityView(vm: vm)
                     } header: {
                         Text("Security")
-                    }
-                }
-                if vm.protocolType.isMuxAvailable {
-                    Section {
-                        Toggle("Enable", isOn: $vm.mux.enabled)
-                        LabeledContent("Concurrency") {
-                            TextField("", value: $vm.mux.concurrency, format: .number)
-                        }
-                    } header: {
-                        Text("Mux")
                     }
                 }
             }

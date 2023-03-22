@@ -9,6 +9,11 @@ struct MGConfigurationNetworkView: View {
     }
         
     var body: some View {
+        Picker("Transport", selection: $vm.network) {
+            ForEach(MGConfiguration.Network.allCases) { type in
+                Text(type.description)
+            }
+        }
         switch vm.network {
         case .tcp:
             EmptyView()

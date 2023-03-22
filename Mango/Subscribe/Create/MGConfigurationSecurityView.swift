@@ -9,6 +9,11 @@ struct MGConfigurationSecurityView: View {
     }
     
     var body: some View {
+        Picker("Security", selection: $vm.security) {
+            ForEach(MGConfiguration.Security.allCases) { type in
+                Text(type.description)
+            }
+        }
         switch vm.security {
         case .tls:
             LabeledContent("Server Name") {

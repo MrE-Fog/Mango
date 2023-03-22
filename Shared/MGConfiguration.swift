@@ -62,10 +62,6 @@ extension MGConfiguration {
                 return true
             }
         }
-        
-        public var isMuxAvailable: Bool {
-            return false
-        }
     }
     
     public enum Network: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
@@ -317,11 +313,6 @@ extension MGConfiguration {
             public var permit_without_stream: Bool = false
             public var initial_windows_size: Int = 0
         }
-    }
-    
-    public struct Mux: Codable {
-        public var enabled: Bool = false
-        public var concurrency: Int = 8
     }
     
     public struct VLESS: Codable {

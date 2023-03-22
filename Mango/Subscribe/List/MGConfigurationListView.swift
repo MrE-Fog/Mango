@@ -23,6 +23,30 @@ struct MGConfigurationListView: View {
             List {
                 Section {
                     Button {
+                        isConfirmationDialogPresented.toggle()
+                    } label: {
+                        Label("创建", systemImage: "square.and.pencil")
+                    }
+                    Button {
+                        
+                    } label: {
+                        Label("扫描二维码", systemImage: "qrcode.viewfinder")
+                    }
+                    .confirmationDialog("", isPresented: $isConfirmationDialogPresented) {
+                        ForEach(MGConfiguration.ProtocolType.allCases) { value in
+                            Button(value.description) {
+                                protocolType = value
+                            }
+                        }
+                    }
+                    .fullScreenCover(item: $protocolType) { protocolType in
+                        MGCreateConfigurationView(protocolType: protocolType)
+                    }
+                } header: {
+                    Text("创建配置")
+                }
+                Section {
+                    Button {
                         location = .remote
                     } label: {
                         Label("从 URL 下载", systemImage: "square.and.arrow.down.on.square")
@@ -33,7 +57,15 @@ struct MGConfigurationListView: View {
                         Label("从文件夹导入", systemImage: "tray.and.arrow.down")
                     }
                 } header: {
-                    Text("导入")
+                    HStack {
+                        Text("导入自定义配置")
+                        Spacer()
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                        }
+                    }
                 }
                 Section {
                     if configurationListManager.configurations.isEmpty {
@@ -146,23 +178,6 @@ struct MGConfigurationListView: View {
             .sheet(item: $location) { location in
                 MGConfigurationLoadView(location: location)
             }
-            .toolbar {
-                Button {
-                    isConfirmationDialogPresented.toggle()
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .confirmationDialog("", isPresented: $isConfirmationDialogPresented) {
-                    ForEach(MGConfiguration.ProtocolType.allCases) { value in
-                        Button(value.description) {
-                            protocolType = value
-                        }
-                    }
-                }
-                .fullScreenCover(item: $protocolType) { protocolType in
-                    MGCreateConfigurationView(protocolType: protocolType)
-                }
-            }
         }
     }
 }
@@ -170,17 +185,12 @@ struct MGConfigurationListView: View {
 
 final class MGCreateConfigurationViewModel: ObservableObject {
     
-    @Published var vless = MGConfiguration.VLESS()
-    @Published var vmess = MGConfiguration.VMess()
-    @Published var trojan = MGConfiguration.Trojan()
-    @Published var shadowsocks = MGConfiguration.Shadowsocks()
+    @Published var vless        = MGConfiguration.VLESS()
+    @Published var vmess        = MGConfiguration.VMess()
+    @Published var trojan       = MGConfiguration.Trojan()
+    @Published var shadowsocks  = MGConfiguration.Shadowsocks()
     
-    @Published var streamSettings = MGConfiguration.StreamSettings()
-
     @Published var network  = MGConfiguration.Network.tcp
-    @Published var security = MGConfiguration.Security.none
-    @Published var tls      = MGConfiguration.StreamSettings.TLS()
-    @Published var reality  = MGConfiguration.StreamSettings.Reality()
     @Published var tcp      = MGConfiguration.StreamSettings.TCP()
     @Published var kcp      = MGConfiguration.StreamSettings.KCP()
     @Published var ws       = MGConfiguration.StreamSettings.WS()
@@ -188,8 +198,10 @@ final class MGCreateConfigurationViewModel: ObservableObject {
     @Published var quic     = MGConfiguration.StreamSettings.QUIC()
     @Published var grpc     = MGConfiguration.StreamSettings.GRPC()
     
-    @Published var mux = MGConfiguration.Mux()
-    
+    @Published var security = MGConfiguration.Security.none
+    @Published var tls      = MGConfiguration.StreamSettings.TLS()
+    @Published var reality  = MGConfiguration.StreamSettings.Reality()
+        
     @Published var descriptive: String = ""
     
     let protocolType: MGConfiguration.ProtocolType
