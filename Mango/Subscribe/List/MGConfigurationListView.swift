@@ -16,7 +16,7 @@ private struct MGEdit: Identifiable {
     let id: UUID
     let name: String
     let protocolType: MGConfiguration.ProtocolType
-    let protocolModel: MGProtocolModel
+    let configurationModel: MGConfigurationModel
     
     init(configuration: MGConfiguration) throws {
         guard let id = UUID(uuidString: configuration.id) else {
@@ -30,7 +30,7 @@ private struct MGEdit: Identifiable {
         self.protocolType = type
         let fileURL = MGConstant.configDirectory.appending(component: "\(configuration.id)/config.\(MGConfigurationFormat.json.rawValue)")
         let data = try Data(contentsOf: fileURL)
-        self.protocolModel = try JSONDecoder().decode(MGProtocolModel.self, from: data)
+        self.configurationModel = try JSONDecoder().decode(MGConfigurationModel.self, from: data)
     }
 }
 
@@ -75,7 +75,9 @@ struct MGConfigurationListView: View {
                         }
                     }
                     .fullScreenCover(item: $protocolType, onDismiss: { configurationListManager.reload() }) { protocolType in
-                        MGCreateConfigurationView(vm: MGCreateConfigurationViewModel(id: UUID(), protocolType: protocolType))
+                        MGCreateConfigurationView(
+                            vm: MGCreateConfigurationViewModel(id: UUID(), protocolType: protocolType, descriptive: "", configurationModel: nil)
+                        )
                     }
                 } header: {
                     Text("创建配置")
@@ -155,7 +157,7 @@ struct MGConfigurationListView: View {
             }
             .fullScreenCover(item: $edit, onDismiss: { configurationListManager.reload() }) { e in
                 MGCreateConfigurationView(
-                    vm: MGCreateConfigurationViewModel(id: e.id, protocolType: e.protocolType, descriptive: e.name, protocolModel: e.protocolModel)
+                    vm: MGCreateConfigurationViewModel(id: e.id, protocolType: e.protocolType, descriptive: e.name, configurationModel: e.configurationModel)
                 )
             }
         }

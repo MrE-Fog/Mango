@@ -21,70 +21,34 @@ final class MGCreateConfigurationViewModel: ObservableObject {
         
     @Published var descriptive: String = ""
     
-    let protocolType: MGConfiguration.ProtocolType
-    let isEditMode: Bool
-    
     let id: UUID
+    let protocolType: MGConfiguration.ProtocolType
     
-    init(id: UUID, protocolType: MGConfiguration.ProtocolType, descriptive: String = "", protocolModel: MGProtocolModel? = nil) {
+    init(id: UUID, protocolType: MGConfiguration.ProtocolType, descriptive: String, configurationModel: MGConfigurationModel?) {
         self.id = id
         self.protocolType = protocolType
         self.descriptive = descriptive
-        guard let protocolModel = protocolModel else {
-            self.isEditMode = false
+        
+        guard let configurationModel = configurationModel else {
             return
         }
-        self.isEditMode = true
-        func updateNetwork(model: MGTransportModel) {
-            switch model {
-            case .tcp(let tcp):
-                self.network = .tcp
-                self.tcp = tcp
-            case .kcp(let kcp):
-                self.network = .kcp
-                self.kcp = kcp
-            case .ws(let ws):
-                self.network = .ws
-                self.ws = ws
-            case .http(let http):
-                self.network = .http
-                self.http = http
-            case .quic(let quic):
-                self.network = .quic
-                self.quic = quic
-            case .grpc(let grpc):
-                self.network = .grpc
-                self.grpc = grpc
-            }
-        }
-        func updateSecurity(model: MGSecurityModel) {
-            switch model {
-            case .none:
-                self.security = .none
-            case .tls(let tls):
-                self.security = .tls
-                self.tls = tls
-            case .reality(let reality):
-                self.security = .reality
-                self.reality = reality
-            }
-        }
-        switch protocolModel {
-        case .vless(let vless, let network, let security):
-            self.vless = vless
-            updateNetwork(model: network)
-            updateSecurity(model: security)
-        case .vmess(let vmess, let network, let security):
-            self.vmess = vmess
-            updateNetwork(model: network)
-            updateSecurity(model: security)
-        case .trojan(let trojan, let network, let security):
-            self.trojan = trojan
-            updateNetwork(model: network)
-            updateSecurity(model: security)
-        case .shadowsocks(let shadowsocks):
-            self.shadowsocks = shadowsocks
-        }
+        
+        configurationModel.vless.flatMap { self.vless = $0 }
+        configurationModel.vmess.flatMap { self.vmess = $0 }
+        configurationModel.trojan.flatMap { self.trojan = $0 }
+        configurationModel.shadowsocks.flatMap { self.shadowsocks = $0 }
+        
+        self.network = configurationModel.network
+        configurationModel.tcp.flatMap { self.tcp = $0 }
+        configurationModel.kcp.flatMap { self.kcp = $0 }
+        configurationModel.ws.flatMap { self.ws = $0 }
+        configurationModel.http.flatMap { self.http = $0 }
+        configurationModel.quic.flatMap { self.quic = $0 }
+        configurationModel.grpc.flatMap { self.grpc = $0 }
+        
+        self.security = configurationModel.security
+        configurationModel.tls.flatMap { self.tls = $0 }
+        configurationModel.reality.flatMap { self.reality = $0 }
     }
     
     func save() throws {
@@ -95,7 +59,7 @@ final class MGCreateConfigurationViewModel: ObservableObject {
             leastUpdated: Date(),
             format: .json
         )
-        if isEditMode {
+        if FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)) {
             try FileManager.default.setAttributes([
                 MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]
             ], ofItemAtPath: folderURL.path(percentEncoded: false))
@@ -109,48 +73,47 @@ final class MGCreateConfigurationViewModel: ObservableObject {
             )
         }
         let destinationURL = folderURL.appending(component: "config.\(MGConfigurationFormat.json.rawValue)")
-        let data = try JSONEncoder().encode(self.createProtocolModel())
+        let data = try JSONEncoder().encode(self.createConfigurationModel())
         FileManager.default.createFile(atPath: destinationURL.path(percentEncoded: false), contents: data)
     }
     
-    private func createProtocolModel() -> MGProtocolModel {
+    private func createConfigurationModel() -> MGConfigurationModel {
+        var model = MGConfigurationModel(
+            network: self.network,
+            security: self.security
+        )
         switch self.protocolType {
         case .vless:
-            return .vless(vless, createTransportModel(), createSecurityModel())
+            model.vless = self.vless
         case .vmess:
-            return .vmess(vmess, createTransportModel(), createSecurityModel())
+            model.vmess = self.vmess
         case .trojan:
-            return .trojan(trojan, createTransportModel(), createSecurityModel())
+            model.trojan = self.trojan
         case .shadowsocks:
-            return .shadowsocks(shadowsocks)
+            model.shadowsocks = self.shadowsocks
         }
-    }
-    
-    private func createTransportModel() -> MGTransportModel {
         switch self.network {
         case .tcp:
-            return .tcp(tcp)
+            model.tcp = self.tcp
         case .kcp:
-            return .kcp(kcp)
+            model.kcp = self.kcp
         case .ws:
-            return .ws(ws)
+            model.ws = self.ws
         case .http:
-            return .http(http)
+            model.http = self.http
         case .quic:
-            return .quic(quic)
+            model.quic = self.quic
         case .grpc:
-            return .grpc(grpc)
+            model.grpc = self.grpc
         }
-    }
-    
-    private func createSecurityModel() -> MGSecurityModel {
         switch self.security {
         case .none:
-            return .none
+            break
         case .tls:
-            return .tls(tls)
+            model.tls = self.tls
         case .reality:
-            return .reality(reality)
+            model.reality = self.reality
         }
+        return model
     }
 }

@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/daemooon/XrayKit.git",
       "state" : {
-        "revision" : "a2f5b4dfb2f71e210b21fc1652c1598ae0065736",
-        "version" : "0.1.42"
+        "revision" : "821d80a2b67cbdfebb29a174ff36009188c90432",
+        "version" : "0.1.43"
       }
     }
   ],

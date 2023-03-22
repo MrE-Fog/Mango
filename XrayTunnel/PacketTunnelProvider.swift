@@ -44,17 +44,32 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             }
             let attributes = try JSONDecoder().decode(MGConfiguration.Attributes.self, from: data)
             let fileURL = folderURL.appending(component: "config.\(attributes.format.rawValue)")
+            let filePath: String
+            let port: Int
+            if let protocolType = attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
+                port = XrayGetAvailablePort()
+                let data = try generateConfiguration(
+                    port: port,
+                    protocolType: protocolType,
+                    configurationModel: try JSONDecoder().decode(MGConfigurationModel.self, from: try Data(contentsOf: fileURL))
+                )
+                let cache = URL(filePath: NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0], directoryHint: .isDirectory)
+                NSLog(String(data: data, encoding: .utf8) ?? "")
+                filePath = cache.appending(component: "\(UUID().uuidString).json", directoryHint: .notDirectory).path(percentEncoded: false)
+                FileManager.default.createFile(atPath: filePath, contents: data)
+            } else {
+                port = 10864
+                filePath = fileURL.path(percentEncoded: false)
+            }
             let log = MGLogModel.current
             XraySetLogger(self)
             XraySetAccessLogEnable(log.accessLogEnabled)
             XraySetDNSLogEnable(log.dnsLogEnabled)
             XraySetErrorLogSeverity(log.errorLogSeverity.rawValue)
             XraySetAsset(MGConstant.assetDirectory.path(percentEncoded: false), nil)
-            let port = XrayGetAvailablePort()
             var error: NSError? = nil
-            XrayRun(MGSniffingModel.current.generateInboudJSONString(with: port), fileURL.path(percentEncoded: false), &error)
+            XrayRun(filePath, &error)
             try error.flatMap { throw $0 }
-            
             let config = """
             tunnel:
               mtu: 9000
@@ -151,53 +166,106 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             break
         }
     }
+    
+    private func generateConfiguration(port: Int, protocolType: MGConfiguration.ProtocolType, configurationModel: MGConfigurationModel) throws -> Data {
+        var mapping: [String: Any] = [:]
+        mapping["inbounds"] = {
+            var mapping: [String: Any] = [:]
+            mapping["listen"] = "[::1]"
+            mapping["protocol"] = "socks"
+            mapping["settings"] = {
+                var mapping: [String: Any] = [:]
+                mapping["udp"] = true
+                mapping["auth"] = "noauth"
+                return mapping
+            }()
+            mapping["tag"] = "socks-in"
+            mapping["port"] = port
+            mapping["sniffing"] = {
+                let sniffing = MGSniffingModel.current
+                var mapping: [String: Any] = [:]
+                mapping["enabled"] = sniffing.enabled
+                mapping["destOverride"] = {
+                    var temp: [String] = []
+                    if sniffing.httpEnabled {
+                        temp.append("http")
+                    }
+                    if sniffing.tlsEnabled {
+                        temp.append("tls")
+                    }
+                    if sniffing.quicEnabled {
+                        temp.append("quic")
+                    }
+                    if sniffing.fakednsEnabled {
+                        temp.append("fakedns")
+                    }
+                    if temp.count == 4 {
+                        temp = ["fakedns+others"]
+                    }
+                    return temp
+                }()
+                mapping["metadataOnly"] = sniffing.metadataOnly
+                mapping["domainsExcluded"] = sniffing.excludedDomains
+                mapping["routeOnly"] = sniffing.routeOnly
+                return mapping
+            }()
+            return [mapping]
+        }()
+        mapping["outbounds"] = {
+            var mapping: [String: Any] = [:]
+            mapping["tag"] = "proxy"
+            mapping["settings"] = {
+                switch protocolType {
+                case .vless:
+                    return configurationModel.vless?.toJSON()
+                case .vmess:
+                    return configurationModel.vmess?.toJSON()
+                case .trojan:
+                    return configurationModel.trojan?.toJSON()
+                case .shadowsocks:
+                    return configurationModel.shadowsocks?.toJSON()
+                }
+            }()
+            mapping["streamSettings"] = {
+                var mapping: [String: Any] = [:]
+                mapping["network"] = configurationModel.network.rawValue
+                switch configurationModel.network {
+                case .tcp:
+                    mapping["tcpSettings"] = configurationModel.tcp?.toJSON()
+                case .kcp:
+                    mapping["kcpSettings"] = configurationModel.kcp?.toJSON()
+                case .ws:
+                    mapping["wsSettings"] = configurationModel.ws?.toJSON()
+                case .http:
+                    mapping["httpSettings"] = configurationModel.http?.toJSON()
+                case .quic:
+                    mapping["quicSettings"] = configurationModel.quic?.toJSON()
+                case .grpc:
+                    mapping["grpcSettings"] = configurationModel.grpc?.toJSON()
+                }
+                mapping["security"] = configurationModel.security.rawValue
+                switch configurationModel.security {
+                case .none:
+                    break
+                case .tls:
+                    mapping["tlsSettings"] = configurationModel.tls?.toJSON()
+                case .reality:
+                    mapping["realitySettings"] = configurationModel.reality?.toJSON()
+                }
+                return mapping
+            }()
+            return [mapping]
+        }()
+        return try JSONSerialization.data(withJSONObject: mapping, options: .prettyPrinted)
+    }
 }
 
-extension MGSniffingModel {
-    
-    func generateInboudJSONString(with port: Int) -> String {
-        return """
-        {
-            "listen": "[::1]",
-            "protocol": "socks",
-            "settings": {
-                "udp": true,
-                "auth": "noauth"
-            },
-            "tag": "socks-in",
-            "port": \(port),
-            "sniffing": {
-                "enabled": \(self.enabled ? "true" : "false"),
-                "destOverride": [\(self.destOverrideString)],
-                "metadataOnly": \(self.metadataOnly ? "true" : "false"),
-                "domainsExcluded": [\(self.domainsExcludedString)],
-                "routeOnly": \(self.routeOnly ? "true" : "false")
-            }
+extension Encodable {
+    func toJSON() -> Any? {
+        do {
+            return try JSONSerialization.jsonObject(with: try JSONEncoder().encode(self))
+        } catch {
+            return nil
         }
-        """
-    }
-    
-    private var domainsExcludedString: String {
-        return self.excludedDomains.map({ "\"\($0)\"" }).joined(separator: ", ")
-    }
-    
-    private var destOverrideString: String {
-        var temp: [String] = []
-        if self.httpEnabled {
-            temp.append("http")
-        }
-        if self.tlsEnabled {
-            temp.append("tls")
-        }
-        if self.quicEnabled {
-            temp.append("quic")
-        }
-        if self.fakednsEnabled {
-            temp.append("fakedns")
-        }
-        if temp.count == 4 {
-            temp = ["fakedns+others"]
-        }
-        return temp.map({ "\"\($0)\"" }).joined(separator: ", ")
     }
 }
