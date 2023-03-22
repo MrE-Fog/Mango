@@ -30,7 +30,7 @@ struct MGCreateConfigurationView: View {
                 } header: {
                     Text("Server")
                 }
-                if isTransportAvailable {
+                if vm.protocolType.isTransportAvailable {
                     Section {
                         Picker("Transport", selection: $vm.network) {
                             ForEach(MGConfiguration.Network.allCases) { type in
@@ -42,7 +42,7 @@ struct MGCreateConfigurationView: View {
                         Text("Transport")
                     }
                 }
-                if isSecurityAvailable {
+                if vm.protocolType.isSecurityAvailable {
                     Section {
                         Picker("Security", selection: $vm.security) {
                             ForEach(MGConfiguration.Security.allCases) { type in
@@ -54,7 +54,7 @@ struct MGCreateConfigurationView: View {
                         Text("Security")
                     }
                 }
-                if isMuxAvailable {
+                if vm.protocolType.isMuxAvailable {
                     Section {
                         Toggle("Enable", isOn: $vm.mux.enabled)
                         LabeledContent("Concurrency") {
@@ -86,33 +86,6 @@ struct MGCreateConfigurationView: View {
                     .fontWeight(.medium)
                 }
             }
-        }
-    }
-    
-    private var isTransportAvailable: Bool {
-        switch vm.protocolType {
-        case .shadowsocks:
-             return false
-        case .vless, .vmess, .trojan:
-            return true
-        }
-    }
-    
-    private var isSecurityAvailable: Bool {
-        switch vm.protocolType {
-        case .shadowsocks:
-             return false
-        case .vless, .vmess, .trojan:
-            return true
-        }
-    }
-    
-    private var isMuxAvailable: Bool {
-        switch vm.protocolType {
-        case .shadowsocks:
-             return false
-        case .vless, .vmess, .trojan:
-            return true
         }
     }
 }
