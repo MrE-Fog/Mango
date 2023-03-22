@@ -4,6 +4,7 @@ final class MGNetworkViewModel: ObservableObject {
     
     @Published var hideVPNIcon: Bool
     @Published var ipv6Enabled: Bool
+    @Published var inboundPort: Int
     
     private var current: MGNetworkModel
     
@@ -11,6 +12,7 @@ final class MGNetworkViewModel: ObservableObject {
         let model = MGNetworkModel.current
         self.hideVPNIcon = model.hideVPNIcon
         self.ipv6Enabled = model.ipv6Enabled
+        self.inboundPort = model.inboundPort
         self.current = model
     }
     
@@ -29,7 +31,8 @@ final class MGNetworkViewModel: ObservableObject {
         do {
             let model = MGNetworkModel(
                 hideVPNIcon: self.hideVPNIcon,
-                ipv6Enabled: self.ipv6Enabled
+                ipv6Enabled: self.ipv6Enabled,
+                inboundPort: self.inboundPort
             )
             guard model != self.current else {
                 return

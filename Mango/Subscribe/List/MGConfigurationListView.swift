@@ -94,15 +94,9 @@ struct MGConfigurationListView: View {
                         Label("从文件夹导入", systemImage: "tray.and.arrow.down")
                     }
                 } header: {
-                    HStack {
-                        Text("导入自定义配置")
-                        Spacer()
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "questionmark.circle")
-                        }
-                    }
+                    Text("导入自定义配置")
+                } footer: {
+                    Text("自定义配置入站只支持SOCKS5, 监听地址为[::1], 端口为\(MGNetworkModel.current.inboundPort)(可在设置中修改), 不支持用户名密码认证")
                 }
                 Section {
                     if configurationListManager.configurations.isEmpty {
