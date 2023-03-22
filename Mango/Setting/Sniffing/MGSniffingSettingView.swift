@@ -8,30 +8,6 @@ struct MGSniffingSettingView: View {
     init(sniffingViewModel: MGSniffingViewModel) {
         self._sniffingViewModel = ObservedObject(initialValue: sniffingViewModel)
     }
-        
-    private struct ToggleButton: View {
-        
-        @Environment(\.colorScheme) private var colorScheme
-        
-        let title: String
-        let isOn: Binding<Bool>
-        var body: some View {
-            Toggle(title, isOn: isOn)
-                .background(RoundedRectangle(cornerRadius: 6).fill(isOn.wrappedValue ? .clear : self.backgroundColor))
-                .toggleStyle(.button)
-        }
-        
-        private var backgroundColor: Color {
-            switch colorScheme {
-            case .light:
-                return .gray.opacity(0.1)
-            case .dark:
-                return .white.opacity(0.1)
-            @unknown default:
-                return .gray.opacity(0.1)
-            }
-        }
-    }
     
     var body: some View {
         List {
@@ -40,10 +16,10 @@ struct MGSniffingSettingView: View {
             }
             Section {
                 HStack {
-                    ToggleButton(title: "HTTP",      isOn: $sniffingViewModel.httpEnabled)
-                    ToggleButton(title: "TLS",       isOn: $sniffingViewModel.tlsEnabled)
-                    ToggleButton(title: "QUIC",      isOn: $sniffingViewModel.quicEnabled)
-                    ToggleButton(title: "FAKEDNS",   isOn: $sniffingViewModel.fakednsEnabled)
+                    MGToggleButton(title: "HTTP",      isOn: $sniffingViewModel.httpEnabled)
+                    MGToggleButton(title: "TLS",       isOn: $sniffingViewModel.tlsEnabled)
+                    MGToggleButton(title: "QUIC",      isOn: $sniffingViewModel.quicEnabled)
+                    MGToggleButton(title: "FAKEDNS",   isOn: $sniffingViewModel.fakednsEnabled)
                 }
                 .padding(.vertical, 4)
             } header: {

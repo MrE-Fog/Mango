@@ -23,6 +23,27 @@ struct MGConfigurationSecurityView: View {
                     LabeledContent("Server Name") {
                         TextField("", text: $vm.tls.serverName)
                     }
+                    LabeledContent("ALPN") {
+                        HStack {
+                            ForEach(MGConfiguration.ALPN.allCases) { alpn in
+                                MGToggleButton(
+                                    title: alpn.description,
+                                    isOn: Binding(
+                                        get: {
+                                            vm.tls.alpn.contains(alpn.rawValue)
+                                        },
+                                        set: { value, _ in
+                                            if value {
+                                                vm.tls.alpn.append(alpn.rawValue)
+                                            } else {
+                                                vm.tls.alpn.removeAll(where: { $0 == alpn.rawValue })
+                                            }
+                                        }
+                                    )
+                                )
+                            }
+                        }
+                    }
                     LabeledContent("Fingerprint") {
                         Picker("", selection: $vm.tls.fingerprint) {
                             ForEach(MGConfiguration.Fingerprint.allCases) { fingerprint in

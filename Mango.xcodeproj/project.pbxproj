@@ -65,6 +65,7 @@
 		70F82CD429C978CF0072B334 /* MGConfigurationSecurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */; };
 		70F82CD629C990E60072B334 /* MGConfigurationShadowsocksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */; };
 		70F82CD829C990FF0072B334 /* MGConfigurationTrojanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */; };
+		70F82CDA29CA94270072B334 /* MGToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD929CA94270072B334 /* MGToggleButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,6 +169,7 @@
 		70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationSecurityView.swift; sourceTree = "<group>"; };
 		70F82CD529C990E60072B334 /* MGConfigurationShadowsocksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationShadowsocksView.swift; sourceTree = "<group>"; };
 		70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationTrojanView.swift; sourceTree = "<group>"; };
+		70F82CD929CA94270072B334 /* MGToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGToggleButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -306,6 +308,7 @@
 				70F82CB529C2E6B40072B334 /* MGContentView.swift */,
 				70B89C2329C1984A003DA577 /* MGDataSizeFormatter.swift */,
 				70DE0D6D29A6155C00B3E343 /* MGPresentedButton.swift */,
+				70F82CD929CA94270072B334 /* MGToggleButton.swift */,
 				70DE0D6F29A62A5800B3E343 /* MGPacketTunnelManager.swift */,
 				70DE0D7129A62C4100B3E343 /* Home */,
 				706DB6B729B9DFAB002F22C7 /* Subscribe */,
@@ -521,6 +524,7 @@
 				70B89C1E29C17C29003DA577 /* MGSniffingEntranceView.swift in Sources */,
 				70F82CD429C978CF0072B334 /* MGConfigurationSecurityView.swift in Sources */,
 				706DB6CB29BAE954002F22C7 /* MGConfigurationView.swift in Sources */,
+				70F82CDA29CA94270072B334 /* MGToggleButton.swift in Sources */,
 				70B89C2929C19D49003DA577 /* MGLogModel.swift in Sources */,
 				70F82CD029C9789F0072B334 /* MGConfigurationVMessView.swift in Sources */,
 				70B89C2C29C19E9C003DA577 /* MGLogViewModel.swift in Sources */,

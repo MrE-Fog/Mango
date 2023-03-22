@@ -214,21 +214,15 @@ extension MGConfiguration {
         
         public var id: Self { self }
         
-        case none       = ""
         case h2         = "h2"
-        case http11     = "http/1.1"
-        case h2http11   = "h2,http/1.1"
+        case http1_1    = "http/1.1"
         
         public var description: String {
             switch self {
-            case .none:
-                return "None"
             case .h2:
                 return "H2"
-            case .http11:
+            case .http1_1:
                 return "HTTP/1.1"
-            case .h2http11:
-                return "H2,HTTP/1.1"
             }
         }
     }
