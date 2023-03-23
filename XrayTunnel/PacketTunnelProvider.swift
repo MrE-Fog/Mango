@@ -168,54 +168,55 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
     }
     
     private func generateConfiguration(port: Int, protocolType: MGConfiguration.ProtocolType, configurationModel: MGConfiguration.Model) throws -> Data {
-        var mapping: [String: Any] = [:]
-        mapping["inbounds"] = {
-            var mapping: [String: Any] = [:]
-            mapping["listen"] = "[::1]"
-            mapping["protocol"] = "socks"
-            mapping["settings"] = {
-                var mapping: [String: Any] = [:]
-                mapping["udp"] = true
-                mapping["auth"] = "noauth"
-                return mapping
+        var configuration: [String: Any] = [:]
+        configuration["inbounds"] = {
+            var inbound: [String: Any] = [:]
+            inbound["listen"] = "[::1]"
+            inbound["protocol"] = "socks"
+            inbound["settings"] = {
+                var settings: [String: Any] = [:]
+                settings["udp"] = true
+                settings["auth"] = "noauth"
+                return settings
             }()
-            mapping["tag"] = "socks-in"
-            mapping["port"] = port
-            mapping["sniffing"] = {
-                let sniffing = MGSniffingModel.current
-                var mapping: [String: Any] = [:]
-                mapping["enabled"] = sniffing.enabled
-                mapping["destOverride"] = {
-                    var temp: [String] = []
-                    if sniffing.httpEnabled {
-                        temp.append("http")
+            inbound["tag"] = "socks-in"
+            inbound["port"] = port
+            inbound["sniffing"] = {
+                let current = MGSniffingModel.current
+                var sniffing: [String: Any] = [:]
+                sniffing["enabled"] = current.enabled
+                sniffing["destOverride"] = {
+                    var destOverride: [String] = []
+                    if current.httpEnabled {
+                        destOverride.append("http")
                     }
-                    if sniffing.tlsEnabled {
-                        temp.append("tls")
+                    if current.tlsEnabled {
+                        destOverride.append("tls")
                     }
-                    if sniffing.quicEnabled {
-                        temp.append("quic")
+                    if current.quicEnabled {
+                        destOverride.append("quic")
                     }
-                    if sniffing.fakednsEnabled {
-                        temp.append("fakedns")
+                    if current.fakednsEnabled {
+                        destOverride.append("fakedns")
                     }
-                    if temp.count == 4 {
-                        temp = ["fakedns+others"]
+                    if destOverride.count == 4 {
+                        destOverride = ["fakedns+others"]
                     }
-                    return temp
+                    return destOverride
                 }()
-                mapping["metadataOnly"] = sniffing.metadataOnly
-                mapping["domainsExcluded"] = sniffing.excludedDomains
-                mapping["routeOnly"] = sniffing.routeOnly
-                return mapping
+                sniffing["metadataOnly"] = current.metadataOnly
+                sniffing["domainsExcluded"] = current.excludedDomains
+                sniffing["routeOnly"] = current.routeOnly
+                return sniffing
             }()
-            return [mapping]
+            return [inbound]
         }()
-        mapping["outbounds"] = {
-            var mapping: [String: Any] = [:]
-            mapping["tag"] = "proxy"
-            mapping["protocol"] = protocolType.rawValue
-            mapping["settings"] = {
+        configuration["outbounds"] = {
+            
+            var proxy: [String: Any] = [:]
+            proxy["tag"] = "proxy"
+            proxy["protocol"] = protocolType.rawValue
+            proxy["settings"] = {
                 switch protocolType {
                 case .vless:
                     guard let vless = configurationModel.vless?.toJSON() else {
@@ -239,37 +240,46 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
                     return ["servers": [shadowsocks]]
                 }
             }()
-            mapping["streamSettings"] = {
-                var mapping: [String: Any] = [:]
-                mapping["network"] = configurationModel.network.rawValue
+            proxy["streamSettings"] = {
+                var network: [String: Any] = [:]
+                network["network"] = configurationModel.network.rawValue
                 switch configurationModel.network {
                 case .tcp:
-                    mapping["tcpSettings"] = configurationModel.tcp?.toJSON()
+                    network["tcpSettings"] = configurationModel.tcp?.toJSON()
                 case .kcp:
-                    mapping["kcpSettings"] = configurationModel.kcp?.toJSON()
+                    network["kcpSettings"] = configurationModel.kcp?.toJSON()
                 case .ws:
-                    mapping["wsSettings"] = configurationModel.ws?.toJSON()
+                    network["wsSettings"] = configurationModel.ws?.toJSON()
                 case .http:
-                    mapping["httpSettings"] = configurationModel.http?.toJSON()
+                    network["httpSettings"] = configurationModel.http?.toJSON()
                 case .quic:
-                    mapping["quicSettings"] = configurationModel.quic?.toJSON()
+                    network["quicSettings"] = configurationModel.quic?.toJSON()
                 case .grpc:
-                    mapping["grpcSettings"] = configurationModel.grpc?.toJSON()
+                    network["grpcSettings"] = configurationModel.grpc?.toJSON()
                 }
-                mapping["security"] = configurationModel.security.rawValue
+                network["security"] = configurationModel.security.rawValue
                 switch configurationModel.security {
                 case .none:
                     break
                 case .tls:
-                    mapping["tlsSettings"] = configurationModel.tls?.toJSON()
+                    network["tlsSettings"] = configurationModel.tls?.toJSON()
                 case .reality:
-                    mapping["realitySettings"] = configurationModel.reality?.toJSON()
+                    network["realitySettings"] = configurationModel.reality?.toJSON()
                 }
-                return mapping
+                return network
             }()
-            return [mapping]
+            
+            var direct: [String: Any] = [:]
+            direct["protocol"] = "freedom"
+            direct["tag"] = "direct"
+            
+            var block: [String: Any] = [:]
+            block["protocol"] = "blackhole"
+            block["tag"] = "block"
+            
+            return [proxy, direct, block]
         }()
-        return try JSONSerialization.data(withJSONObject: mapping, options: .prettyPrinted)
+        return try JSONSerialization.data(withJSONObject: configuration, options: .prettyPrinted)
     }
 }
 
