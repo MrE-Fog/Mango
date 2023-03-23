@@ -129,14 +129,53 @@ private struct MGConfigurationEditModel: Identifiable {
             model.tcp = MGConfiguration.StreamSettings.TCP()
         case .kcp:
             model.kcp = MGConfiguration.StreamSettings.KCP()
+            model.kcp?.header.type = mapping["headerType"].flatMap(MGConfiguration.HeaderType.init(rawValue:)) ?? .none
+            model.kcp?.seed = mapping["seed"] ?? ""
         case .ws:
             model.ws = MGConfiguration.StreamSettings.WS()
+            if let sni = mapping["host"] {
+                if sni.isEmpty {
+                    throw NSError.newError("WS Host 存在但为空")
+                } else {
+                    model.ws?.headers = ["Host": sni]
+                }
+            } else {
+                model.ws?.headers = ["Host": host]
+            }
+            if let value = mapping["path"] {
+                if value.isEmpty {
+                    throw NSError.newError("WS Path 存在但为空")
+                } else {
+                    model.ws?.path = value
+                }
+            }
         case .http:
             model.http = MGConfiguration.StreamSettings.HTTP()
+            if let sni = mapping["host"] {
+                if sni.isEmpty {
+                    throw NSError.newError("HTTP2 Host 存在但为空")
+                } else {
+                    model.http?.host = [sni]
+                }
+            } else {
+                model.http?.host = [host]
+            }
+            if let value = mapping["path"] {
+                if value.isEmpty {
+                    throw NSError.newError("HTTP2 Path 存在但为空")
+                } else {
+                    model.http?.path = value
+                }
+            }
         case .quic:
             model.quic = MGConfiguration.StreamSettings.QUIC()
+            model.quic?.security = mapping["quicSecurity"].flatMap(MGConfiguration.Encryption.init(rawValue:)) ?? .none
+            model.quic?.key = mapping["key"] ?? ""
+            model.quic?.header.type = mapping["headerType"].flatMap(MGConfiguration.HeaderType.init(rawValue:)) ?? .none
         case .grpc:
             model.grpc = MGConfiguration.StreamSettings.GRPC()
+            model.grpc?.serviceName = mapping["serviceName"] ?? ""
+            model.grpc?.multiMode = mapping["mode"] == "multi"
         }
         if let security = mapping["security"] {
             if let value = MGConfiguration.Security(rawValue: security) {
