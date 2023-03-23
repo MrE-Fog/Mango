@@ -30,19 +30,15 @@ struct MGCreateOrUpdateConfigurationView: View {
                 } header: {
                     Text("Server")
                 }
-                if vm.protocolType.isTransportAvailable {
-                    Section {
-                        MGConfigurationTransportView(vm: vm)
-                    } header: {
-                        Text("Transport")
-                    }
+                Section {
+                    MGConfigurationTransportView(vm: vm)
+                } header: {
+                    Text("Transport")
                 }
-                if vm.protocolType.isSecurityAvailable {
-                    Section {
-                        MGConfigurationSecurityView(vm: vm)
-                    } header: {
-                        Text("Security")
-                    }
+                Section {
+                    MGConfigurationSecurityView(vm: vm)
+                } header: {
+                    Text("Security")
                 }
             }
             .lineLimit(1)

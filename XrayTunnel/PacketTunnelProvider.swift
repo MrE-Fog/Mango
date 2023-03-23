@@ -214,16 +214,29 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
         mapping["outbounds"] = {
             var mapping: [String: Any] = [:]
             mapping["tag"] = "proxy"
+            mapping["protocol"] = protocolType.rawValue
             mapping["settings"] = {
                 switch protocolType {
                 case .vless:
-                    return configurationModel.vless?.toJSON()
+                    guard let vless = configurationModel.vless?.toJSON() else {
+                        return nil
+                    }
+                    return ["vnext": [vless]]
                 case .vmess:
-                    return configurationModel.vmess?.toJSON()
+                    guard let vmess = configurationModel.vmess?.toJSON() else {
+                        return nil
+                    }
+                    return ["vnext": [vmess]]
                 case .trojan:
-                    return configurationModel.trojan?.toJSON()
+                    guard let trojan = configurationModel.trojan?.toJSON() else {
+                        return nil
+                    }
+                    return ["servers": [trojan]]
                 case .shadowsocks:
-                    return configurationModel.shadowsocks?.toJSON()
+                    guard let shadowsocks = configurationModel.shadowsocks?.toJSON() else {
+                        return nil
+                    }
+                    return ["servers": [shadowsocks]]
                 }
             }()
             mapping["streamSettings"] = {

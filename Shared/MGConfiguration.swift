@@ -44,24 +44,6 @@ extension MGConfiguration {
                 return "Shadowsocks"
             }
         }
-        
-        public var isTransportAvailable: Bool {
-            switch self {
-            case .shadowsocks:
-                 return false
-            case .vless, .vmess, .trojan:
-                return true
-            }
-        }
-        
-        public var isSecurityAvailable: Bool {
-            switch self {
-            case .shadowsocks:
-                 return false
-            case .vless, .vmess, .trojan:
-                return true
-            }
-        }
     }
     
     public enum Transport: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
