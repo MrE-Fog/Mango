@@ -15,7 +15,7 @@ public struct MGRouteModel: Codable, Equatable {
         usingPredefinedRule: true,
         domainStrategy: .asIs,
         predefinedRule: .rule,
-        customizedRule: "{}"
+        customizedRule: "[]"
     )
     
     public static var current: MGRouteModel {
