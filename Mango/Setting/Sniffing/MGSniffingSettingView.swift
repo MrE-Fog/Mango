@@ -10,7 +10,7 @@ struct MGSniffingSettingView: View {
     }
     
     var body: some View {
-        List {
+        Form {
             Section {
                 Toggle("状态", isOn: $sniffingViewModel.enabled)
             }

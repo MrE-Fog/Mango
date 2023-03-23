@@ -67,6 +67,11 @@
 		70F82CD829C990FF0072B334 /* MGConfigurationTrojanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */; };
 		70F82CDA29CA94270072B334 /* MGToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CD929CA94270072B334 /* MGToggleButton.swift */; };
 		70F82CDC29CAC2D50072B334 /* MGCreateOrUpdateConfigurationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CDB29CAC2D50072B334 /* MGCreateOrUpdateConfigurationViewModel.swift */; };
+		70F82CE029CC059C0072B334 /* MGDNSEntranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CDF29CC059C0072B334 /* MGDNSEntranceView.swift */; };
+		70F82CE229CC05BA0072B334 /* MGRouteEntranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE129CC05BA0072B334 /* MGRouteEntranceView.swift */; };
+		70F82CE429CC10070072B334 /* MGRouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE329CC10070072B334 /* MGRouteModel.swift */; };
+		70F82CE629CC10220072B334 /* MGRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE529CC10220072B334 /* MGRouteViewModel.swift */; };
+		70F82CE829CC10390072B334 /* MGRouteSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE729CC10390072B334 /* MGRouteSettingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +177,11 @@
 		70F82CD729C990FF0072B334 /* MGConfigurationTrojanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationTrojanView.swift; sourceTree = "<group>"; };
 		70F82CD929CA94270072B334 /* MGToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGToggleButton.swift; sourceTree = "<group>"; };
 		70F82CDB29CAC2D50072B334 /* MGCreateOrUpdateConfigurationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGCreateOrUpdateConfigurationViewModel.swift; sourceTree = "<group>"; };
+		70F82CDF29CC059C0072B334 /* MGDNSEntranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGDNSEntranceView.swift; sourceTree = "<group>"; };
+		70F82CE129CC05BA0072B334 /* MGRouteEntranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteEntranceView.swift; sourceTree = "<group>"; };
+		70F82CE329CC10070072B334 /* MGRouteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteModel.swift; sourceTree = "<group>"; };
+		70F82CE529CC10220072B334 /* MGRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteViewModel.swift; sourceTree = "<group>"; };
+		70F82CE729CC10390072B334 /* MGRouteSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteSettingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -368,6 +378,8 @@
 				70B89C3129C1A8F9003DA577 /* Network */,
 				70B89C2729C19D27003DA577 /* Log */,
 				70B89C1929C17BEC003DA577 /* Sniffing */,
+				70F82CDE29CC05740072B334 /* DNS */,
+				70F82CDD29CC056E0072B334 /* Route */,
 				70B89C2229C195FB003DA577 /* Asset */,
 			);
 			path = Setting;
@@ -386,6 +398,25 @@
 				70F82CD329C978CF0072B334 /* MGConfigurationSecurityView.swift */,
 			);
 			path = Create;
+			sourceTree = "<group>";
+		};
+		70F82CDD29CC056E0072B334 /* Route */ = {
+			isa = PBXGroup;
+			children = (
+				70F82CE329CC10070072B334 /* MGRouteModel.swift */,
+				70F82CE529CC10220072B334 /* MGRouteViewModel.swift */,
+				70F82CE129CC05BA0072B334 /* MGRouteEntranceView.swift */,
+				70F82CE729CC10390072B334 /* MGRouteSettingView.swift */,
+			);
+			path = Route;
+			sourceTree = "<group>";
+		};
+		70F82CDE29CC05740072B334 /* DNS */ = {
+			isa = PBXGroup;
+			children = (
+				70F82CDF29CC059C0072B334 /* MGDNSEntranceView.swift */,
+			);
+			path = DNS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -519,6 +550,7 @@
 				70B89C3329C1A918003DA577 /* MGNetworkModel.swift in Sources */,
 				706DB6C929BACC14002F22C7 /* MGConfigurationListManager.swift in Sources */,
 				706DB6BB29B9DFCE002F22C7 /* MGConfigurationLocation.swift in Sources */,
+				70F82CE229CC05BA0072B334 /* MGRouteEntranceView.swift in Sources */,
 				70B89C2E29C19F7D003DA577 /* MGLogEntranceView.swift in Sources */,
 				70F82CCC29C978650072B334 /* MGCreateOrUpdateConfigurationView.swift in Sources */,
 				70DE0D7329A62C4E00B3E343 /* MGHomeView.swift in Sources */,
@@ -530,11 +562,13 @@
 				706DB6CB29BAE954002F22C7 /* MGConfigurationView.swift in Sources */,
 				70F82CDA29CA94270072B334 /* MGToggleButton.swift in Sources */,
 				70B89C2929C19D49003DA577 /* MGLogModel.swift in Sources */,
+				70F82CE429CC10070072B334 /* MGRouteModel.swift in Sources */,
 				70F82CD029C9789F0072B334 /* MGConfigurationVMessView.swift in Sources */,
 				70B89C2C29C19E9C003DA577 /* MGLogViewModel.swift in Sources */,
 				70B89C2629C198E3003DA577 /* MGAssetEntranceView.swift in Sources */,
 				706DB6BD29B9DFE3002F22C7 /* MGConfiguration.swift in Sources */,
 				70F82CD229C978B30072B334 /* MGConfigurationTransportView.swift in Sources */,
+				70F82CE829CC10390072B334 /* MGRouteSettingView.swift in Sources */,
 				70DE0D7829A6306100B3E343 /* MGSettingsView.swift in Sources */,
 				70DE0D6E29A6155C00B3E343 /* MGPresentedButton.swift in Sources */,
 				70B89C3629C1A9C6003DA577 /* MGNetworkViewModel.swift in Sources */,
@@ -551,7 +585,9 @@
 				70B89C2429C1984A003DA577 /* MGDataSizeFormatter.swift in Sources */,
 				706DB6C129B9E006002F22C7 /* MGConfigurationLoadViewModel.swift in Sources */,
 				7000C6DE295D5F690005626E /* MGConnectedDurationView.swift in Sources */,
+				70F82CE629CC10220072B334 /* MGRouteViewModel.swift in Sources */,
 				70B89C3029C19FF3003DA577 /* MGLogSettingView.swift in Sources */,
+				70F82CE029CC059C0072B334 /* MGDNSEntranceView.swift in Sources */,
 				70DE0D6829A6114B00B3E343 /* MGApp.swift in Sources */,
 				70B947B329613354006F6A38 /* MGAppDelegate.swift in Sources */,
 				708B380329B0937600E24312 /* MGSniffingSettingView.swift in Sources */,

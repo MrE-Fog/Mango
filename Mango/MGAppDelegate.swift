@@ -7,6 +7,7 @@ final class MGAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCe
         MGNetworkViewModel.setupDefaultLogIfNeeded()
         MGSniffingViewModel.setupDefaultSettingsIfNeeded()
         MGLogViewModel.setupDefaultLogIfNeeded()
+        MGRouteViewModel.setupDefaultSettingsIfNeeded()
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert], completionHandler: { _, _ in })
         UNUserNotificationCenter.current().delegate = self
         return true

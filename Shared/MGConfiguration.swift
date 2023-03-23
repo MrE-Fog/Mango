@@ -384,3 +384,41 @@ extension MGConfiguration {
     }
 }
 
+extension MGConfiguration {
+    
+    public enum RouteDomainStrategy: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+        
+        public var id: Self { self }
+                
+        case asIs, ipIfNonMatch, ipOnDemand
+        
+        public var description: String {
+            switch self {
+            case .asIs:
+                return "AsIs"
+            case .ipIfNonMatch:
+                return "IPIfNonMatch"
+            case .ipOnDemand:
+                return "IPOnDemand"
+            }
+        }
+    }
+    
+    public enum RoutePredefineRule: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+        
+        public var id: Self { self }
+                
+        case global, rule, direct
+        
+        public var description: String {
+            switch self {
+            case .global:
+                return "全局"
+            case .rule:
+                return "规则"
+            case .direct:
+                return "直连"
+            }
+        }
+    }
+}
