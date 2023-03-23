@@ -15,6 +15,7 @@
 		7069E00C29ADE79C0012C435 /* XrayKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7069E00B29ADE79C0012C435 /* XrayKit */; };
 		7069E01F29ADEAA30012C435 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 702D9093299FA40600B83324 /* PacketTunnelProvider.swift */; };
 		706A6D6829C6AEAA00523A07 /* MGConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */; };
+		706A6D8429CCB20F00523A07 /* MGConfigurationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706A6D8329CCB20F00523A07 /* MGConfigurationParser.swift */; };
 		706DB6B929B9DFBC002F22C7 /* MGConfigurationFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6B829B9DFBC002F22C7 /* MGConfigurationFormat.swift */; };
 		706DB6BB29B9DFCE002F22C7 /* MGConfigurationLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BA29B9DFCE002F22C7 /* MGConfigurationLocation.swift */; };
 		706DB6BD29B9DFE3002F22C7 /* MGConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */; };
@@ -128,6 +129,7 @@
 		702D9093299FA40600B83324 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		702D9095299FA40600B83324 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		702D9096299FA40600B83324 /* XrayTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XrayTunnel.entitlements; sourceTree = "<group>"; };
+		706A6D8329CCB20F00523A07 /* MGConfigurationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationParser.swift; sourceTree = "<group>"; };
 		706DB6B829B9DFBC002F22C7 /* MGConfigurationFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationFormat.swift; sourceTree = "<group>"; };
 		706DB6BA29B9DFCE002F22C7 /* MGConfigurationLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfigurationLocation.swift; sourceTree = "<group>"; };
 		706DB6BC29B9DFE3002F22C7 /* MGConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGConfiguration.swift; sourceTree = "<group>"; };
@@ -324,6 +326,7 @@
 				70DE0D6D29A6155C00B3E343 /* MGPresentedButton.swift */,
 				70F82CD929CA94270072B334 /* MGToggleButton.swift */,
 				70DE0D6F29A62A5800B3E343 /* MGPacketTunnelManager.swift */,
+				706A6D8329CCB20F00523A07 /* MGConfigurationParser.swift */,
 				70DE0D7129A62C4100B3E343 /* Home */,
 				706DB6B729B9DFAB002F22C7 /* Subscribe */,
 				70DE0D7629A6300100B3E343 /* Setting */,
@@ -593,6 +596,7 @@
 				70B89C3029C19FF3003DA577 /* MGLogSettingView.swift in Sources */,
 				70F82CE029CC059C0072B334 /* MGDNSEntranceView.swift in Sources */,
 				70DE0D6829A6114B00B3E343 /* MGApp.swift in Sources */,
+				706A6D8429CCB20F00523A07 /* MGConfigurationParser.swift in Sources */,
 				70B947B329613354006F6A38 /* MGAppDelegate.swift in Sources */,
 				708B380329B0937600E24312 /* MGSniffingSettingView.swift in Sources */,
 				70DE0D7029A62A5800B3E343 /* MGPacketTunnelManager.swift in Sources */,
