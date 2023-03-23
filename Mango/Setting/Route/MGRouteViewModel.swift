@@ -2,19 +2,19 @@ import Foundation
 
 final class MGRouteViewModel: ObservableObject {
     
-    @Published var usingPredefinedRoute: Bool
+    @Published var usingPredefinedRule: Bool
     @Published var domainStrategy: MGConfiguration.RouteDomainStrategy
-    @Published var predefinedRule: MGConfiguration.RoutePredefineRule
-    @Published var customizeRoute: String
+    @Published var predefinedRule: MGConfiguration.RoutePredefinedRule
+    @Published var customizedRule: String
         
     private var current: MGRouteModel
     
     init() {
         let model                   = MGRouteModel.current
-        self.usingPredefinedRoute   = model.usingPredefinedRoute
+        self.usingPredefinedRule    = model.usingPredefinedRule
         self.domainStrategy         = model.domainStrategy
         self.predefinedRule         = model.predefinedRule
-        self.customizeRoute         = model.customizeRoute
+        self.customizedRule         = model.customizedRule
         self.current = model
     }
     
@@ -32,10 +32,10 @@ final class MGRouteViewModel: ObservableObject {
     func save(updated: () -> Void) {
         do {
             let model = MGRouteModel(
-                usingPredefinedRoute: self.usingPredefinedRoute,
+                usingPredefinedRule: self.usingPredefinedRule,
                 domainStrategy: self.domainStrategy,
                 predefinedRule: self.predefinedRule,
-                customizeRoute: self.customizeRoute
+                customizedRule: self.customizedRule
             )
             guard model != self.current else {
                 return

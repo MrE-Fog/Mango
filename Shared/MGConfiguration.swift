@@ -404,7 +404,7 @@ extension MGConfiguration {
         }
     }
     
-    public enum RoutePredefineRule: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+    public enum RoutePredefinedRule: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
         
         public var id: Self { self }
                 

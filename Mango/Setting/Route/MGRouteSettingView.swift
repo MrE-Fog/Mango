@@ -12,18 +12,28 @@ struct MGRouteSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker("域名策略", selection: $routeViewModel.domainStrategy) {
+                Picker("策略", selection: $routeViewModel.domainStrategy) {
                     ForEach(MGConfiguration.RouteDomainStrategy.allCases) { strategy in
                         Text(strategy.description)
                     }
                 }
-                Picker("规则", selection: $routeViewModel.predefinedRule) {
-                    ForEach(MGConfiguration.RoutePredefineRule.allCases) { rule in
-                        Text(rule.description)
+            } header: {
+                Text("域名解析")
+            }
+            Section {
+                Toggle("使用预定义规则", isOn: $routeViewModel.usingPredefinedRule)
+                    .disabled(true)
+                if routeViewModel.usingPredefinedRule {
+                    Picker("预定义规则", selection: $routeViewModel.predefinedRule) {
+                        ForEach(MGConfiguration.RoutePredefinedRule.allCases) { rule in
+                            Text(rule.description)
+                        }
                     }
+                } else {
+                    Text(routeViewModel.customizedRule)
                 }
             } header: {
-                Text("预定义路由")
+                Text("规则")
             }
         }
         .onDisappear {

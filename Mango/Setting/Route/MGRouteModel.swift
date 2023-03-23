@@ -6,16 +6,16 @@ extension MGConstant {
 
 public struct MGRouteModel: Codable, Equatable {
     
-    public let usingPredefinedRoute: Bool
+    public let usingPredefinedRule: Bool
     public let domainStrategy: MGConfiguration.RouteDomainStrategy
-    public let predefinedRule: MGConfiguration.RoutePredefineRule
-    public let customizeRoute: String
+    public let predefinedRule: MGConfiguration.RoutePredefinedRule
+    public let customizedRule: String
     
     public static let `default` = MGRouteModel(
-        usingPredefinedRoute: true,
+        usingPredefinedRule: true,
         domainStrategy: .asIs,
         predefinedRule: .rule,
-        customizeRoute: "{}"
+        customizedRule: "{}"
     )
     
     public static var current: MGRouteModel {
