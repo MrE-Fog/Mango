@@ -115,6 +115,85 @@ private struct MGConfigurationEditModel: Identifiable {
         case .trojan, .shadowsocks:
             fatalError()
         }
+        if let netowrk = mapping["type"] {
+            if let value = MGConfiguration.Transport(rawValue: netowrk) {
+                model.network = value
+            } else {
+                throw NSError.newError("不支持的传输方式: \(netowrk)")
+            }
+        } else {
+            model.network = .tcp
+        }
+        switch model.network {
+        case .tcp:
+            model.tcp = MGConfiguration.StreamSettings.TCP()
+        case .kcp:
+            model.kcp = MGConfiguration.StreamSettings.KCP()
+        case .ws:
+            model.ws = MGConfiguration.StreamSettings.WS()
+        case .http:
+            model.http = MGConfiguration.StreamSettings.HTTP()
+        case .quic:
+            model.quic = MGConfiguration.StreamSettings.QUIC()
+        case .grpc:
+            model.grpc = MGConfiguration.StreamSettings.GRPC()
+        }
+        if let security = mapping["security"] {
+            if let value = MGConfiguration.Security(rawValue: security) {
+                model.security = value
+            } else {
+                throw NSError.newError("不支持的传输安全: \(security)")
+            }
+        } else {
+            model.security = .none
+        }
+        switch model.security {
+        case .none:
+            break
+        case .tls:
+            model.tls = MGConfiguration.StreamSettings.TLS()
+            if let sni = mapping["sni"] {
+                if sni.isEmpty {
+                    throw NSError.newError("SNI 存在但为空")
+                } else {
+                    model.tls?.serverName = sni
+                }
+            } else {
+                model.tls?.serverName = host
+            }
+            model.tls?.fingerprint = mapping["fp"].flatMap(MGConfiguration.Fingerprint.init(rawValue:)) ?? .chrome
+            if let alpn = mapping["alpn"] {
+                if alpn.isEmpty {
+                    throw NSError.newError("ALPN 存在但为空")
+                } else {
+                    model.tls?.alpn = alpn.components(separatedBy: ",").compactMap(MGConfiguration.ALPN.init(rawValue:)).map(\.rawValue)
+                }
+            }
+        case .reality:
+            model.reality = MGConfiguration.StreamSettings.Reality()
+            if let pbk = mapping["pbk"] {
+                model.reality?.publicKey = pbk
+            }
+            if let sid = mapping["sid"] {
+                model.reality?.shortId = sid
+            }
+            if let spx = mapping["spx"] {
+                model.reality?.spiderX = spx
+            }
+            if let pbk = mapping["pbk"] {
+                model.reality?.publicKey = pbk
+            }
+            if let sni = mapping["sni"] {
+                if sni.isEmpty {
+                    throw NSError.newError("SNI 存在但为空")
+                } else {
+                    model.reality?.serverName = sni
+                }
+            } else {
+                model.reality?.serverName = host
+            }
+            model.reality?.fingerprint = mapping["fp"].flatMap(MGConfiguration.Fingerprint.init(rawValue:)) ?? .chrome
+        }
         self.id = UUID()
         self.name = components.fragment ?? ""
         self.type = type
