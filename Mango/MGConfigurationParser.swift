@@ -70,89 +70,89 @@ protocol MGConfigurationParserProtocol {
     
     associatedtype Output
     
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Output>
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Output>
 }
 
 extension MGConfiguration.VLESS: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.VMess: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.Trojan: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.Shadowsocks: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.TCP: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.KCP: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.WS: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.HTTP: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.QUIC: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.GRPC: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.TLS: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
 
 extension MGConfiguration.StreamSettings.Reality: MGConfigurationParserProtocol {
         
-    func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
+    static func parse(with components: MGConfigurationComponents) throws -> Optional<Self> {
         return .none
     }
 }
