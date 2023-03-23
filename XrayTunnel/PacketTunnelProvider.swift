@@ -26,7 +26,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             let settings = NEIPv6Settings(addresses: ["fd6e:a81b:704f:1211::1"], networkPrefixLengths: [64])
             settings.includedRoutes = [NEIPv6Route.default()]
             if netowrk.hideVPNIcon {
-                settings.excludedRoutes = [NEIPv6Route(destinationAddress: "::", networkPrefixLength: 64)]
+                settings.excludedRoutes = [NEIPv6Route(destinationAddress: "::", networkPrefixLength: 128)]
             }
             return settings
         }()
