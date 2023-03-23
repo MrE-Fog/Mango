@@ -1,4 +1,5 @@
 import SwiftUI
+import CodeScanner
 
 extension MGConfiguration {
     
@@ -47,6 +48,78 @@ private struct MGConfigurationEditModel: Identifiable {
         let data = try Data(contentsOf: fileURL)
         self.model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
     }
+    
+    init(code: String) throws {
+        guard let components = URLComponents(string: code) else {
+            throw NSError.newError("解析失败")
+        }
+        guard let type = components.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)), type != .shadowsocks, type != .shadowsocks else {
+            throw NSError.newError("未知的协议类型")
+        }
+        guard type != .shadowsocks, type != .shadowsocks else {
+            throw NSError.newError("暂不支持\(type.description)")
+        }
+        guard let id = components.user, !id.isEmpty else {
+            throw NSError.newError("用户 ID 不存在")
+        }
+        guard let host = components.host, !host.isEmpty else {
+            throw NSError.newError("服务器的域名或 IP 地址不存在")
+        }
+        guard let port = components.port, (1...65535).contains(port) else {
+            throw NSError.newError("服务器的端口号不合法")
+        }
+        let mapping = (components.queryItems ?? []).reduce(into: [String: String]()) { result, item in
+            result[item.name] = item.value
+        }
+        var model = MGConfiguration.Model(network: .tcp, security: .none)
+        switch type {
+        case .vless:
+            model.vless = MGConfiguration.VLESS()
+            model.vless?.users[0].id = id
+            model.vless?.address = host
+            model.vless?.port = port
+            if let encryption = mapping["encryption"] {
+                if encryption.isEmpty {
+                    throw NSError.newError("加密算法存在但为空")
+                } else {
+                    model.vless?.users[0].encryption = encryption
+                }
+            }
+            if let flow = mapping["flow"] {
+                if flow.isEmpty {
+                    throw NSError.newError("流控存在但为空")
+                } else {
+                    if let value = MGConfiguration.Flow(rawValue: flow) {
+                        model.vless?.users[0].flow = value
+                    } else {
+                        throw NSError.newError("不支持的流控: \(flow)")
+                    }
+                }
+            }
+        case .vmess:
+            model.vmess = MGConfiguration.VMess()
+            model.vmess?.users[0].id = id
+            model.vmess?.address = host
+            model.vmess?.port = port
+            if let encryption = mapping["encryption"] {
+                if encryption.isEmpty {
+                    throw NSError.newError("加密算法存在但为空")
+                } else {
+                    if let value = MGConfiguration.Encryption(rawValue: encryption) {
+                        model.vmess?.users[0].security = value
+                    } else {
+                        throw NSError.newError("不支持的加密算法: \(encryption)")
+                    }
+                }
+            }
+        case .trojan, .shadowsocks:
+            fatalError()
+        }
+        self.id = UUID()
+        self.name = components.fragment ?? ""
+        self.type = type
+        self.model = model
+    }
 }
 
 struct MGConfigurationListView: View {
@@ -66,6 +139,9 @@ struct MGConfigurationListView: View {
     @State private var isConfirmationDialogPresented = false
     @State private var protocolType: MGConfiguration.ProtocolType?
     
+    @State private var isCodeScannerPresented: Bool = false
+    @State private var scanResult: Swift.Result<ScanResult, ScanError>?
+    
     let current: Binding<String>
     
     var body: some View {
@@ -78,7 +154,7 @@ struct MGConfigurationListView: View {
                         Label("创建", systemImage: "square.and.pencil")
                     }
                     Button {
-                        
+                        isCodeScannerPresented.toggle()
                     } label: {
                         Label("扫描二维码", systemImage: "qrcode.viewfinder")
                     }
@@ -136,6 +212,39 @@ struct MGConfigurationListView: View {
                     vm: MGCreateOrUpdateConfigurationViewModel(id: em.id, descriptive: em.name, protocolType: em.type, configurationModel: em.model)
                 )
             }
+            .fullScreenCover(isPresented: $isCodeScannerPresented) {
+                guard let res = self.scanResult else {
+                    return
+                }
+                self.scanResult = nil
+                self.handleScanResult(res)
+            } content: {
+                MGQRCodeScannerView(result: $scanResult)
+            }
+        }
+    }
+    
+    private func handleScanResult(_ result: Swift.Result<ScanResult, ScanError>) {
+        switch result {
+        case .success(let success):
+            do {
+                self.editModel = try MGConfigurationEditModel(code: success.string)
+            } catch {
+                MGNotification.send(title: "", subtitle: "", body: error.localizedDescription)
+            }
+        case .failure(let failure):
+            let message: String
+            switch failure {
+            case .badInput:
+                message = "输入错误"
+            case .badOutput:
+                message = "输出错误"
+            case .permissionDenied:
+                message = "权限错误"
+            case .initError(let error):
+                message = error.localizedDescription
+            }
+            MGNotification.send(title: "", subtitle: "", body: message)
         }
     }
     
@@ -272,5 +381,30 @@ struct MGConfigurationListView: View {
             Label("删除", systemImage: "trash")
         }
         .disabled(configurationListManager.downloadingConfigurationIDs.contains(configuration.id))
+    }
+}
+
+
+struct MGQRCodeScannerView: View {
+        
+    @Environment(\.dismiss) private var dismiss
+    
+    let result: Binding<Swift.Result<ScanResult, ScanError>?>
+    
+    var body: some View {
+        NavigationStack {
+            CodeScannerView(codeTypes: [.qr]) {
+                result.wrappedValue = $0
+                dismiss()
+            }
+            .ignoresSafeArea()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("关闭", role: .cancel) {
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }

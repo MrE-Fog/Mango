@@ -296,7 +296,7 @@ extension MGConfiguration {
         public struct User: Codable {
             public var id: String = ""
             public var alterId: Int = 0
-            public var encryption = Encryption.auto
+            public var security = Encryption.auto
         }
         public var address: String = ""
         public var port: Int = 443

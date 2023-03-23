@@ -72,6 +72,7 @@
 		70F82CE429CC10070072B334 /* MGRouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE329CC10070072B334 /* MGRouteModel.swift */; };
 		70F82CE629CC10220072B334 /* MGRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE529CC10220072B334 /* MGRouteViewModel.swift */; };
 		70F82CE829CC10390072B334 /* MGRouteSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE729CC10390072B334 /* MGRouteSettingView.swift */; };
+		70F82CEB29CC21B40072B334 /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 70F82CEA29CC21B40072B334 /* CodeScanner */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -200,6 +201,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70F82CEB29CC21B40072B334 /* CodeScanner in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -461,6 +463,7 @@
 			);
 			name = Mango;
 			packageProductDependencies = (
+				70F82CEA29CC21B40072B334 /* CodeScanner */,
 			);
 			productName = Clash;
 			productReference = 70C9ED9529501D5B00B6995B /* Mango.app */;
@@ -495,6 +498,7 @@
 			packageReferences = (
 				7069E00A29ADE79C0012C435 /* XCRemoteSwiftPackageReference "XrayKit" */,
 				708B37F829B036C500E24312 /* XCRemoteSwiftPackageReference "Tun2SocksKit" */,
+				70F82CE929CC21B40072B334 /* XCRemoteSwiftPackageReference "CodeScanner" */,
 			);
 			productRefGroup = 70C9ED9629501D5B00B6995B /* Products */;
 			projectDirPath = "";
@@ -892,6 +896,14 @@
 				version = 2.2.0;
 			};
 		};
+		70F82CE929CC21B40072B334 /* XCRemoteSwiftPackageReference "CodeScanner" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/twostraws/CodeScanner.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.3.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -904,6 +916,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 708B37F829B036C500E24312 /* XCRemoteSwiftPackageReference "Tun2SocksKit" */;
 			productName = Tun2SocksKit;
+		};
+		70F82CEA29CC21B40072B334 /* CodeScanner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 70F82CE929CC21B40072B334 /* XCRemoteSwiftPackageReference "CodeScanner" */;
+			productName = CodeScanner;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

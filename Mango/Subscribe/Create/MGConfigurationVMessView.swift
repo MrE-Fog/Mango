@@ -21,7 +21,7 @@ struct MGConfigurationVMessView: View {
         LabeledContent("Alert ID") {
             TextField("", value: $vm.vmess.users[0].alterId, format: .number)
         }
-        Picker("Encryption", selection: $vm.vmess.users[0].encryption) {
+        Picker("Security", selection: $vm.vmess.users[0].security) {
             ForEach(MGConfiguration.Encryption.vmess) { encryption in
                 Text(encryption.description)
             }
