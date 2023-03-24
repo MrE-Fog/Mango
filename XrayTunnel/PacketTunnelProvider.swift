@@ -3,6 +3,10 @@ import XrayKit
 import Tun2SocksKit
 import os
 
+extension MGConstant {
+    static let cachesDirectory = URL(filePath: NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0])
+}
+
 class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
     
     private let logger = Logger(subsystem: "com.Arror.Mango.XrayTunnel", category: "Core")
@@ -33,67 +37,55 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
         settings.dnsSettings = NEDNSSettings(servers: ["8.8.8.8", "114.114.114.114"])
         try await self.setTunnelNetworkSettings(settings)
         do {
-            guard let id = UserDefaults.shared.string(forKey: MGConfiguration.currentStoreKey), !id.isEmpty else {
-                fatalError()
-            }
-            let folderURL = MGConstant.configDirectory.appending(component: id)
-            let folderAttributes = try FileManager.default.attributesOfItem(atPath: folderURL.path(percentEncoded: false))
-            guard let mapping = folderAttributes[MGConfiguration.key] as? [String: Data],
-                  let data = mapping[MGConfiguration.Attributes.key] else {
-                fatalError()
-            }
-            let attributes = try JSONDecoder().decode(MGConfiguration.Attributes.self, from: data)
-            let fileURL = folderURL.appending(component: "config.json")
-            let filePath: String
-            let port: Int
-            if let protocolType = attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
-                port = XrayGetAvailablePort()
-                let data = try generateConfiguration(
-                    port: port,
-                    protocolType: protocolType,
-                    configurationModel: try JSONDecoder().decode(MGConfiguration.Model.self, from: try Data(contentsOf: fileURL))
-                )
-                let cache = URL(filePath: NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0], directoryHint: .isDirectory)
-                NSLog(String(data: data, encoding: .utf8) ?? "")
-                filePath = cache.appending(component: "\(UUID().uuidString).json", directoryHint: .notDirectory).path(percentEncoded: false)
-                FileManager.default.createFile(atPath: filePath, contents: data)
-            } else {
-                port = 10864
-                filePath = fileURL.path(percentEncoded: false)
-            }
-            let log = MGLogModel.current
-            XraySetLogger(self)
-            XraySetAccessLogEnable(log.accessLogEnabled)
-            XraySetDNSLogEnable(log.dnsLogEnabled)
-            XraySetErrorLogSeverity(log.errorLogSeverity.rawValue)
-            XraySetAsset(MGConstant.assetDirectory.path(percentEncoded: false), nil)
-            var error: NSError? = nil
-            XrayRun(filePath, &error)
-            try error.flatMap { throw $0 }
-            let config = """
-            tunnel:
-              mtu: 9000
-            socks5:
-              port: \(port)
-              address: ::1
-              udp: 'udp'
-            misc:
-              task-stack-size: 20480
-              connect-timeout: 5000
-              read-write-timeout: 60000
-              log-file: stderr
-              log-level: error
-              limit-nofile: 65535
-            """
-            let cache = URL(filePath: NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0], directoryHint: .isDirectory)
-            let file = cache.appending(component: "\(UUID().uuidString).yml", directoryHint: .notDirectory)
-            try config.write(to: file, atomically: true, encoding: .utf8)
-            DispatchQueue.global(qos: .userInitiated).async {
-                NSLog("HEV_SOCKS5_TUNNEL_MAIN: \(Socks5Tunnel.run(withConfig: file.path(percentEncoded: false)))")
-            }
+            try self.startXray()
+            try self.startSocks5Tunnel()
         } catch {
             MGNotification.send(title: "", subtitle: "", body: error.localizedDescription)
             throw error
+        }
+    }
+    
+    private func startXray() throws {
+        guard let id = UserDefaults.shared.string(forKey: MGConfiguration.currentStoreKey), !id.isEmpty else {
+            throw NSError.newError("当前无有效配置")
+        }
+        let configuration = try MGConfiguration(uuidString: id)
+        let data = try configuration.loadData()
+        let configurationFilePath = MGConstant.cachesDirectory.appending(component: "config.json").path(percentEncoded: false)
+        guard FileManager.default.createFile(atPath: configurationFilePath, contents: data) else {
+            throw NSError.newError("Xray 配置文件写入失败")
+        }
+        let log = MGLogModel.current
+        XraySetupLogger(self, log.accessLogEnabled, log.dnsLogEnabled, log.errorLogSeverity.rawValue)
+        XraySetenv("XRAY_LOCATION_CONFIG", MGConstant.cachesDirectory.path(percentEncoded: false), nil)
+        XraySetenv("XRAY_LOCATION_ASSET", MGConstant.assetDirectory.path(percentEncoded: false), nil)
+        var error: NSError? = nil
+        XrayRun(&error)
+        try error.flatMap { throw $0 }
+    }
+    
+    private func startSocks5Tunnel() throws {
+        let config = """
+        tunnel:
+          mtu: 9000
+        socks5:
+          port: \(0)
+          address: ::1
+          udp: 'udp'
+        misc:
+          task-stack-size: 20480
+          connect-timeout: 5000
+          read-write-timeout: 60000
+          log-file: stderr
+          log-level: error
+          limit-nofile: 65535
+        """
+        let configurationFilePath = MGConstant.cachesDirectory.appending(component: "config.yml").path(percentEncoded: false)
+        guard FileManager.default.createFile(atPath: configurationFilePath, contents: config.data(using: .utf8)!) else {
+            throw NSError.newError("Tunnel 配置文件写入失败")
+        }
+        DispatchQueue.global(qos: .userInitiated).async {
+            NSLog("HEV_SOCKS5_TUNNEL_MAIN: \(Socks5Tunnel.run(withConfig: configurationFilePath))")
         }
     }
     
@@ -340,5 +332,26 @@ extension Encodable {
         } catch {
             return nil
         }
+    }
+}
+
+extension MGConfiguration {
+    
+    func loadData() throws -> Data {
+        let file = MGConstant.configDirectory.appending(component: "\(self.id)/config.json")
+        let data = try Data(contentsOf: file)
+        if let protocolType = self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
+            let model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
+            return try model.buildConfigurationData(of: protocolType)
+        } else {
+            return data
+        }
+    }
+}
+
+extension MGConfiguration.Model {
+    
+    func buildConfigurationData(of protocolType: MGConfiguration.ProtocolType) throws -> Data {
+        fatalError()
     }
 }

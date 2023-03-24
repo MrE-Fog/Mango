@@ -12,8 +12,15 @@ final class MGConfigurationListManager: ObservableObject {
     
     private func loadConfigurations() -> [MGConfiguration] {
         do {
-            let children = try FileManager.default.contentsOfDirectory(at: MGConstant.configDirectory, includingPropertiesForKeys: nil)
-            return children.compactMap(MGConfiguration.init(url:)).sorted(by: { $0.creationDate > $1.creationDate })
+            let children = try FileManager.default.contentsOfDirectory(atPath: MGConstant.configDirectory.path(percentEncoded: false))
+            let configurations = children.compactMap { id in
+                do {
+                    return try MGConfiguration(uuidString: id)
+                } catch {
+                    return nil
+                }
+            }
+            return configurations.sorted(by: { $0.creationDate > $1.creationDate })
         } catch {
             return []
         }
@@ -79,28 +86,6 @@ final class MGConfigurationListManager: ObservableObject {
                 _ = self.downloadingConfigurationIDs.remove(configuration.id)
             }
             throw error
-        }
-    }
-}
-
-fileprivate extension MGConfiguration {
-    
-    init?(url: URL) {
-        do {
-            guard let id = UUID(uuidString: url.lastPathComponent) else {
-                return nil
-            }
-            let attributes = try FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false))
-            guard let creationDate = attributes[.creationDate] as? Date,
-                  let extends = attributes[MGConfiguration.key] as? [String: Data],
-                  let data = extends[MGConfiguration.Attributes.key] else {
-                return nil
-            }
-            self.id = id.uuidString
-            self.creationDate = creationDate
-            self.attributes = try JSONDecoder().decode(MGConfiguration.Attributes.self, from: data)
-        } catch {
-            return nil
         }
     }
 }
