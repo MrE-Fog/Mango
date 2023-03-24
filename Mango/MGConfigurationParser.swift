@@ -265,6 +265,11 @@ extension MGConfiguration.StreamSettings.QUIC: MGConfigurationParserProtocol {
         guard components.network == .quic else {
             return .none
         }
+//    case .quic:
+//        model.quic = MGConfiguration.StreamSettings.QUIC()
+//        model.quic?.security = mapping["quicSecurity"].flatMap(MGConfiguration.Encryption.init(rawValue:)) ?? .none
+//        model.quic?.key = mapping["key"] ?? ""
+//        model.quic?.header.type = mapping["headerType"].flatMap(MGConfiguration.HeaderType.init(rawValue:)) ?? .none
         var quic = MGConfiguration.StreamSettings.QUIC()
         return quic
     }
@@ -277,6 +282,24 @@ extension MGConfiguration.StreamSettings.GRPC: MGConfigurationParserProtocol {
             return .none
         }
         var grpc = MGConfiguration.StreamSettings.GRPC()
+        if let value = components.queryMapping["serviceName"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) serviceName 不能为空")
+            } else {
+                grpc.serviceName = value
+            }
+        } else {
+            grpc.serviceName = ""
+        }
+        if let value = components.queryMapping["mode"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) mode 不能为空")
+            } else {
+                grpc.multiMode = value == "multi"
+            }
+        } else {
+            grpc.multiMode = false
+        }
         return grpc
     }
 }
