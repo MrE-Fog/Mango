@@ -161,42 +161,87 @@ extension MGConfiguration.Shadowsocks: MGConfigurationParserProtocol {
 extension MGConfiguration.StreamSettings.TCP: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.network == .tcp else {
+            return .none
+        }
+        return MGConfiguration.StreamSettings.TCP()
     }
 }
 
 extension MGConfiguration.StreamSettings.KCP: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.network == .kcp else {
+            return .none
+        }
+        var kcp = MGConfiguration.StreamSettings.KCP()
+        if let value = components.queryMapping["headerType"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) headerType 不能为空")
+            } else {
+                if let value = MGConfiguration.HeaderType(rawValue: value) {
+                    kcp.header.type = value
+                } else {
+                    throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) headerType 不支持的类型: \(value)")
+                }
+            }
+        } else {
+            kcp.header.type = .none
+        }
+        if let value = components.queryMapping["seed"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) seed 不能为空")
+            } else {
+                kcp.seed = value
+            }
+        } else {
+            kcp.seed = ""
+        }        
+        return kcp
     }
 }
 
 extension MGConfiguration.StreamSettings.WS: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.network == .ws else {
+            return .none
+        }
+        var ws = MGConfiguration.StreamSettings.WS()
+        return ws
     }
 }
 
 extension MGConfiguration.StreamSettings.HTTP: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.network == .http else {
+            return .none
+        }
+        var http = MGConfiguration.StreamSettings.HTTP()
+        return http
     }
 }
 
 extension MGConfiguration.StreamSettings.QUIC: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.network == .quic else {
+            return .none
+        }
+        var quic = MGConfiguration.StreamSettings.QUIC()
+        return quic
     }
 }
 
 extension MGConfiguration.StreamSettings.GRPC: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.network == .grpc else {
+            return .none
+        }
+        var grpc = MGConfiguration.StreamSettings.GRPC()
+        return grpc
     }
 }
 
