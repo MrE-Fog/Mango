@@ -44,7 +44,7 @@ private struct MGConfigurationEditModel: Identifiable {
         self.id = id
         self.name = configuration.attributes.alias
         self.type = type
-        let fileURL = MGConstant.configDirectory.appending(component: "\(configuration.id)/config.\(MGConfigurationFormat.json.rawValue)")
+        let fileURL = MGConstant.configDirectory.appending(component: "\(configuration.id)/config.json")
         let data = try Data(contentsOf: fileURL)
         self.model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
     }

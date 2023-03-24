@@ -56,8 +56,7 @@ final class MGCreateOrUpdateConfigurationViewModel: ObservableObject {
         let attributes = MGConfiguration.Attributes(
             alias: descriptive.trimmingCharacters(in: .whitespacesAndNewlines),
             source: URL(string: "\(protocolType.rawValue)://")!,
-            leastUpdated: Date(),
-            format: .json
+            leastUpdated: Date()
         )
         if FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)) {
             try FileManager.default.setAttributes([
@@ -72,7 +71,7 @@ final class MGCreateOrUpdateConfigurationViewModel: ObservableObject {
                 ]
             )
         }
-        let destinationURL = folderURL.appending(component: "config.\(MGConfigurationFormat.json.rawValue)")
+        let destinationURL = folderURL.appending(component: "config.json")
         let data = try JSONEncoder().encode(self.createConfigurationModel())
         FileManager.default.createFile(atPath: destinationURL.path(percentEncoded: false), contents: data)
     }

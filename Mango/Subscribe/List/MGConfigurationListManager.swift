@@ -36,8 +36,7 @@ final class MGConfigurationListManager: ObservableObject {
         let attributes = MGConfiguration.Attributes(
             alias: name,
             source: configuration.attributes.source,
-            leastUpdated: configuration.attributes.leastUpdated,
-            format: configuration.attributes.format
+            leastUpdated: configuration.attributes.leastUpdated
         )
         try FileManager.default.setAttributes(
             [MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]],
@@ -60,13 +59,12 @@ final class MGConfigurationListManager: ObservableObject {
                 }
             }
             let folderURL = MGConstant.configDirectory.appending(path: configuration.id)
-            let destinationURL = folderURL.appending(path: "config.\(configuration.attributes.format.rawValue)")
+            let destinationURL = folderURL.appending(path: "config.json")
             try FileManager.default.replaceItem(at: destinationURL, withItemAt: tempURL, backupItemName: nil, resultingItemURL: nil)
             let attributes = MGConfiguration.Attributes(
                 alias: configuration.attributes.alias,
                 source: configuration.attributes.source,
-                leastUpdated: Date(),
-                format: configuration.attributes.format
+                leastUpdated: Date()
             )
             try FileManager.default.setAttributes(
                 [MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]],

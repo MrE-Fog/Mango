@@ -20,7 +20,6 @@ extension MGConfiguration {
         public let alias: String
         public let source: URL
         public let leastUpdated: Date
-        public let format: MGConfigurationFormat
     }
 }
 

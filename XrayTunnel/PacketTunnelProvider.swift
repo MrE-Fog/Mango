@@ -43,7 +43,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
                 fatalError()
             }
             let attributes = try JSONDecoder().decode(MGConfiguration.Attributes.self, from: data)
-            let fileURL = folderURL.appending(component: "config.\(attributes.format.rawValue)")
+            let fileURL = folderURL.appending(component: "config.json")
             let filePath: String
             let port: Int
             if let protocolType = attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
