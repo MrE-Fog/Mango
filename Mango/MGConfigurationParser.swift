@@ -237,6 +237,24 @@ extension MGConfiguration.StreamSettings.HTTP: MGConfigurationParserProtocol {
             return .none
         }
         var http = MGConfiguration.StreamSettings.HTTP()
+        if let value = components.queryMapping["host"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) host 不能为空")
+            } else {
+                http.host = [value]
+            }
+        } else {
+            http.host = [components.host]
+        }
+        if let value = components.queryMapping["path"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) path 不能为空")
+            } else {
+                http.path = value
+            }
+        } else {
+            http.path = "/"
+        }
         return http
     }
 }
