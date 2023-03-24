@@ -239,7 +239,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
                     ]
                     let geoip_cn_private: [String: Any] = [
                         "type": "field",
-                        "domain": ["geoip:cn", "geoip:private"],
+                        "ip": ["geoip:cn", "geoip:private"],
                         "outboundTag": "direct"
                     ]
                     return [geosite_category_ads_all, geosite_games_cn, geosite_geolocation_not_cn, geosite_cn_private, geoip_cn_private]
