@@ -18,7 +18,7 @@ extension MGConfiguration {
                   let protocolType = components.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) else {
                 throw NSError.newError("协议链接解析失败")
             }
-            guard protocolType == .trojan || protocolType == .shadowsocks else {
+            guard protocolType == .vless || protocolType == .vmess else {
                 throw NSError.newError("暂不支持\(protocolType.description)协议解析")
             }
             guard let user = components.user, !user.isEmpty else {
@@ -80,14 +80,67 @@ protocol MGConfigurationParserProtocol {
 extension MGConfiguration.VLESS: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.protocolType == .vless else {
+            return .none
+        }
+        var vless = MGConfiguration.VLESS()
+        vless.address = components.host
+        vless.port = components.port
+        vless.users[0].id = components.user
+        if let value = components.queryMapping["encryption"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) 加密算法存在但为空")
+            } else {
+                if value == "none" {
+                    vless.users[0].encryption = value
+                } else {
+                    throw NSError.newError("\(components.protocolType.description) 不支持的加密算法: \(value)")
+                }
+            }
+        } else {
+            vless.users[0].encryption = "none"
+        }
+        if let value = components.queryMapping["flow"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) 流控不能为空")
+            } else {
+                if let value = MGConfiguration.Flow(rawValue: value) {
+                    vless.users[0].flow = value
+                } else {
+                    throw NSError.newError("\(components.protocolType.description) 不支持的流控: \(value)")
+                }
+            }
+        } else {
+            vless.users[0].flow = .none
+        }
+        return vless
     }
 }
 
 extension MGConfiguration.VMess: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.protocolType == .vmess else {
+            return .none
+        }
+        var vmess = MGConfiguration.VMess()
+        vmess.address = components.host
+        vmess.port = components.port
+        vmess.users[0].id = components.user
+        if let value = components.queryMapping["encryption"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) 加密算法不能为空")
+            } else {
+                if let value = MGConfiguration.Encryption(rawValue: value) {
+                    vmess.users[0].security = value
+                } else {
+                    throw NSError.newError("\(components.protocolType.description) 不支持的加密算法: \(value)")
+                }
+            }
+        } else {
+            vmess.users[0].security = .auto
+        }
+        return vmess
     }
 }
 
@@ -157,7 +210,40 @@ extension MGConfiguration.StreamSettings.TLS: MGConfigurationParserProtocol {
 extension MGConfiguration.StreamSettings.Reality: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.security == .reality else {
+            return .none
+        }
+        var reality = MGConfiguration.StreamSettings.Reality()
+        if let value = components.queryMapping["pbk"], !value.isEmpty {
+            reality.publicKey = value
+        } else {
+            throw NSError.newError("\(components.protocolType.description) Reality pbk 不合法")
+        }
+        reality.shortId = components.queryMapping["sid"] ?? ""
+        reality.spiderX = components.queryMapping["spx"] ?? ""
+        if let value = components.queryMapping["sni"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) Reality sni 不能为空")
+            } else {
+                reality.serverName = value
+            }
+        } else {
+            reality.serverName = components.host
+        }
+        if let value = components.queryMapping["fp"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) Reality fp 不能为空")
+            } else {
+                if let value = MGConfiguration.Fingerprint(rawValue: value) {
+                    reality.fingerprint = value
+                } else {
+                    throw NSError.newError("\(components.protocolType.description) Reality 不支持的指纹: \(value)")
+                }
+            }
+        } else {
+            reality.fingerprint = .chrome
+        }
+        return reality
     }
 }
 
