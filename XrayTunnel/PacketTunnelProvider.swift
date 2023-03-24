@@ -37,20 +37,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
         settings.dnsSettings = NEDNSSettings(servers: ["8.8.8.8", "114.114.114.114"])
         try await self.setTunnelNetworkSettings(settings)
         do {
-            try self.startXray()
-            try self.startSocks5Tunnel()
+            try self.startXray(inboundPort: netowrk.inboundPort)
+            try self.startSocks5Tunnel(serverPort: netowrk.inboundPort)
         } catch {
             MGNotification.send(title: "", subtitle: "", body: error.localizedDescription)
             throw error
         }
     }
     
-    private func startXray() throws {
+    private func startXray(inboundPort: Int) throws {
         guard let id = UserDefaults.shared.string(forKey: MGConfiguration.currentStoreKey), !id.isEmpty else {
             throw NSError.newError("当前无有效配置")
         }
         let configuration = try MGConfiguration(uuidString: id)
-        let data = try configuration.loadData()
+        let data = try configuration.loadData(inboundPort: inboundPort)
         let configurationFilePath = MGConstant.cachesDirectory.appending(component: "config.json").path(percentEncoded: false)
         guard FileManager.default.createFile(atPath: configurationFilePath, contents: data) else {
             throw NSError.newError("Xray 配置文件写入失败")
@@ -64,12 +64,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
         try error.flatMap { throw $0 }
     }
     
-    private func startSocks5Tunnel() throws {
+    private func startSocks5Tunnel(serverPort port: Int) throws {
         let config = """
         tunnel:
           mtu: 9000
         socks5:
-          port: \(0)
+          port: \(port)
           address: ::1
           udp: 'udp'
         misc:
@@ -158,8 +158,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             break
         }
     }
+}
+
+extension MGConfiguration {
     
-    private func generateConfiguration(port: Int, protocolType: MGConfiguration.ProtocolType, configurationModel: MGConfiguration.Model) throws -> Data {
+    func loadData(inboundPort: Int) throws -> Data {
+        let file = MGConstant.configDirectory.appending(component: "\(self.id)/config.json")
+        let data = try Data(contentsOf: file)
+        if let protocolType = self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
+            let model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
+            return try model.buildConfigurationData(of: protocolType, inboundPort: inboundPort)
+        } else {
+            return data
+        }
+    }
+}
+
+extension MGConfiguration.Model {
+    
+    func buildConfigurationData(of protocolType: MGConfiguration.ProtocolType, inboundPort: Int) throws -> Data {
         var configuration: [String: Any] = [:]
         configuration["inbounds"] = {
             var inbound: [String: Any] = [:]
@@ -172,7 +189,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
                 return settings
             }()
             inbound["tag"] = "socks-in"
-            inbound["port"] = port
+            inbound["port"] = inboundPort
             inbound["sniffing"] = {
                 let current = MGSniffingModel.current
                 var sniffing: [String: Any] = [:]
@@ -252,29 +269,28 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             return routing
         }()
         configuration["outbounds"] = {
-            
             var proxy: [String: Any] = [:]
             proxy["tag"] = "proxy"
             proxy["protocol"] = protocolType.rawValue
             proxy["settings"] = {
                 switch protocolType {
                 case .vless:
-                    guard let vless = configurationModel.vless?.toJSON() else {
+                    guard let vless = self.vless?.toJSON() else {
                         return nil
                     }
                     return ["vnext": [vless]]
                 case .vmess:
-                    guard let vmess = configurationModel.vmess?.toJSON() else {
+                    guard let vmess = self.vmess?.toJSON() else {
                         return nil
                     }
                     return ["vnext": [vmess]]
                 case .trojan:
-                    guard let trojan = configurationModel.trojan?.toJSON() else {
+                    guard let trojan = self.trojan?.toJSON() else {
                         return nil
                     }
                     return ["servers": [trojan]]
                 case .shadowsocks:
-                    guard let shadowsocks = configurationModel.shadowsocks?.toJSON() else {
+                    guard let shadowsocks = self.shadowsocks?.toJSON() else {
                         return nil
                     }
                     return ["servers": [shadowsocks]]
@@ -282,29 +298,29 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             }()
             proxy["streamSettings"] = {
                 var network: [String: Any] = [:]
-                network["network"] = configurationModel.network.rawValue
-                switch configurationModel.network {
+                network["network"] = self.network.rawValue
+                switch self.network {
                 case .tcp:
-                    network["tcpSettings"] = configurationModel.tcp?.toJSON()
+                    network["tcpSettings"] = self.tcp?.toJSON()
                 case .kcp:
-                    network["kcpSettings"] = configurationModel.kcp?.toJSON()
+                    network["kcpSettings"] = self.kcp?.toJSON()
                 case .ws:
-                    network["wsSettings"] = configurationModel.ws?.toJSON()
+                    network["wsSettings"] = self.ws?.toJSON()
                 case .http:
-                    network["httpSettings"] = configurationModel.http?.toJSON()
+                    network["httpSettings"] = self.http?.toJSON()
                 case .quic:
-                    network["quicSettings"] = configurationModel.quic?.toJSON()
+                    network["quicSettings"] = self.quic?.toJSON()
                 case .grpc:
-                    network["grpcSettings"] = configurationModel.grpc?.toJSON()
+                    network["grpcSettings"] = self.grpc?.toJSON()
                 }
-                network["security"] = configurationModel.security.rawValue
-                switch configurationModel.security {
+                network["security"] = self.security.rawValue
+                switch self.security {
                 case .none:
                     break
                 case .tls:
-                    network["tlsSettings"] = configurationModel.tls?.toJSON()
+                    network["tlsSettings"] = self.tls?.toJSON()
                 case .reality:
-                    network["realitySettings"] = configurationModel.reality?.toJSON()
+                    network["realitySettings"] = self.reality?.toJSON()
                 }
                 return network
             }()
@@ -332,26 +348,5 @@ extension Encodable {
         } catch {
             return nil
         }
-    }
-}
-
-extension MGConfiguration {
-    
-    func loadData() throws -> Data {
-        let file = MGConstant.configDirectory.appending(component: "\(self.id)/config.json")
-        let data = try Data(contentsOf: file)
-        if let protocolType = self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
-            let model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
-            return try model.buildConfigurationData(of: protocolType)
-        } else {
-            return data
-        }
-    }
-}
-
-extension MGConfiguration.Model {
-    
-    func buildConfigurationData(of protocolType: MGConfiguration.ProtocolType) throws -> Data {
-        fatalError()
     }
 }
