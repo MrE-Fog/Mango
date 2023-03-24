@@ -211,6 +211,54 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
             }()
             return [inbound]
         }()
+        configuration["routing"] = {
+            let model = MGRouteModel.current
+            var routing: [String: Any] = [:]
+            routing["domainStrategy"] = model.domainStrategy.rawValue
+            if model.usingPredefinedRule {
+                routing["rules"] = {
+                    let geosite_category_ads_all: [String: Any] = [
+                        "type": "field",
+                        "domain": ["geosite:category-ads-all"],
+                        "outboundTag": "block"
+                    ]
+                    let geosite_games_cn: [String: Any] = [
+                        "type": "field",
+                        "domain": ["geosite:category-games@cn"],
+                        "outboundTag": "direct"
+                    ]
+                    let geosite_geolocation_not_cn: [String: Any] = [
+                        "type": "field",
+                        "domain": ["geosite:geolocation-!cn"],
+                        "outboundTag": "proxy"
+                    ]
+                    let geosite_cn_private: [String: Any] = [
+                        "type": "field",
+                        "domain": ["geosite:cn", "geosite:private"],
+                        "outboundTag": "direct"
+                    ]
+                    let geoip_cn_private: [String: Any] = [
+                        "type": "field",
+                        "domain": ["geoip:cn", "geoip:private"],
+                        "outboundTag": "direct"
+                    ]
+                    return [geosite_category_ads_all, geosite_games_cn, geosite_geolocation_not_cn, geosite_cn_private, geoip_cn_private]
+                }()
+            } else {
+                do {
+                    guard let data = model.customizedRule.data(using: .utf8) else {
+                        throw NSError.newError("")
+                    }
+                    guard let rules = try JSONSerialization.jsonObject(with: data) as? [Any] else {
+                        throw NSError.newError("")
+                    }
+                    return rules
+                } catch {
+                    return []
+                }
+            }
+            return routing
+        }()
         configuration["outbounds"] = {
             
             var proxy: [String: Any] = [:]
@@ -269,13 +317,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, XrayLoggerProtocol {
                 return network
             }()
             
-            var direct: [String: Any] = [:]
-            direct["protocol"] = "freedom"
-            direct["tag"] = "direct"
+            let direct: [String: String] = [
+                "tag": "direct",
+                "protocol": "freedom"
+            ]
             
-            var block: [String: Any] = [:]
-            block["protocol"] = "blackhole"
-            block["tag"] = "block"
+            let block: [String: Any] = [
+                "tag": "block",
+                "protocol": "blackhole"
+            ]
             
             return [proxy, direct, block]
         }()

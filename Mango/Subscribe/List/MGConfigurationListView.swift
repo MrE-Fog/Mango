@@ -1,4 +1,5 @@
 import SwiftUI
+import CodeScanner
 
 extension MGConfiguration {
     
