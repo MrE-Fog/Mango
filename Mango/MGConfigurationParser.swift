@@ -196,7 +196,7 @@ extension MGConfiguration.StreamSettings.KCP: MGConfigurationParserProtocol {
             }
         } else {
             kcp.seed = ""
-        }        
+        }
         return kcp
     }
 }
@@ -208,6 +208,24 @@ extension MGConfiguration.StreamSettings.WS: MGConfigurationParserProtocol {
             return .none
         }
         var ws = MGConfiguration.StreamSettings.WS()
+        if let value = components.queryMapping["host"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) host 不能为空")
+            } else {
+                ws.headers["Host"] = value
+            }
+        } else {
+            ws.headers["Host"] = components.host
+        }
+        if let value = components.queryMapping["path"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) \(components.network.rawValue) path 不能为空")
+            } else {
+                ws.path = value
+            }
+        } else {
+            ws.path = "/"
+        }
         return ws
     }
 }
