@@ -203,7 +203,42 @@ extension MGConfiguration.StreamSettings.GRPC: MGConfigurationParserProtocol {
 extension MGConfiguration.StreamSettings.TLS: MGConfigurationParserProtocol {
         
     static func parse(with components: MGConfiguration.URLComponents) throws -> Optional<Self> {
-        return .none
+        guard components.security == .tls else {
+            return .none
+        }
+        var tls = MGConfiguration.StreamSettings.TLS()
+        if let value = components.queryMapping["sni"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) TLS sni 不能为空")
+            } else {
+                tls.serverName = value
+            }
+        } else {
+            tls.serverName = components.host
+        }
+        if let value = components.queryMapping["fp"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) TLS fp 不能为空")
+            } else {
+                if let value = MGConfiguration.Fingerprint(rawValue: value) {
+                    tls.fingerprint = value
+                } else {
+                    throw NSError.newError("\(components.protocolType.description) TLS 不支持的指纹: \(value)")
+                }
+            }
+        } else {
+            tls.fingerprint = .chrome
+        }
+        if let value = components.queryMapping["alpn"] {
+            if value.isEmpty {
+                throw NSError.newError("\(components.protocolType.description) TLS alpn 不能为空")
+            } else {
+                tls.alpn = value.components(separatedBy: ",").compactMap(MGConfiguration.ALPN.init(rawValue:))
+            }
+        } else {
+            tls.alpn = MGConfiguration.ALPN.allCases
+        }
+        return tls
     }
 }
 

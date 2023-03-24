@@ -26,13 +26,13 @@ struct MGConfigurationSecurityView: View {
                             title: alpn.description,
                             isOn: Binding(
                                 get: {
-                                    vm.tls.alpn.contains(alpn.rawValue)
+                                    vm.tls.alpn.contains(alpn)
                                 },
                                 set: { value in
                                     if value {
-                                        vm.tls.alpn.append(alpn.rawValue)
+                                        vm.tls.alpn.append(alpn)
                                     } else {
-                                        vm.tls.alpn.removeAll(where: { $0 == alpn.rawValue })
+                                        vm.tls.alpn.removeAll(where: { $0 == alpn })
                                     }
                                 }
                             )

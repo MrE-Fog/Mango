@@ -228,7 +228,7 @@ extension MGConfiguration {
         public struct TLS: Codable {
             public var serverName: String = ""
             public var allowInsecure: Bool = false
-            public var alpn: [String] = ["h2", "http/1.1"]
+            public var alpn: [ALPN] = ALPN.allCases
             public var fingerprint: Fingerprint = .chrome
         }
         public struct Reality: Codable {
