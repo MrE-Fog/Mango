@@ -74,6 +74,7 @@
 		70F82CE629CC10220072B334 /* MGRouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE529CC10220072B334 /* MGRouteViewModel.swift */; };
 		70F82CE829CC10390072B334 /* MGRouteSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CE729CC10390072B334 /* MGRouteSettingView.swift */; };
 		70F82CEB29CC21B40072B334 /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 70F82CEA29CC21B40072B334 /* CodeScanner */; };
+		70F82CED29CD75BB0072B334 /* MGQRCodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F82CEC29CD75BB0072B334 /* MGQRCodeScannerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -185,6 +186,7 @@
 		70F82CE329CC10070072B334 /* MGRouteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteModel.swift; sourceTree = "<group>"; };
 		70F82CE529CC10220072B334 /* MGRouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteViewModel.swift; sourceTree = "<group>"; };
 		70F82CE729CC10390072B334 /* MGRouteSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGRouteSettingView.swift; sourceTree = "<group>"; };
+		70F82CEC29CD75BB0072B334 /* MGQRCodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MGQRCodeScannerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,6 +247,7 @@
 			isa = PBXGroup;
 			children = (
 				706DB6C629BAC4C7002F22C7 /* MGConfigurationListView.swift */,
+				70F82CEC29CD75BB0072B334 /* MGQRCodeScannerView.swift */,
 				706DB6C829BACC14002F22C7 /* MGConfigurationListManager.swift */,
 			);
 			path = List;
@@ -601,6 +604,7 @@
 				708B380329B0937600E24312 /* MGSniffingSettingView.swift in Sources */,
 				70DE0D7029A62A5800B3E343 /* MGPacketTunnelManager.swift in Sources */,
 				70B89C3A29C1AB18003DA577 /* MGNetworkSettingView.swift in Sources */,
+				70F82CED29CD75BB0072B334 /* MGQRCodeScannerView.swift in Sources */,
 				708B380829B0AA6200E24312 /* MGAssetSettingView.swift in Sources */,
 				70B89C1B29C17C06003DA577 /* MGSniffingViewModel.swift in Sources */,
 			);

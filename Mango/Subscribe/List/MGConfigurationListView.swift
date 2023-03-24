@@ -1,5 +1,4 @@
 import SwiftUI
-import CodeScanner
 
 extension MGConfiguration {
     
@@ -317,30 +316,5 @@ struct MGConfigurationListView: View {
             Label("删除", systemImage: "trash")
         }
         .disabled(configurationListManager.downloadingConfigurationIDs.contains(configuration.id))
-    }
-}
-
-
-struct MGQRCodeScannerView: View {
-        
-    @Environment(\.dismiss) private var dismiss
-    
-    let result: Binding<Swift.Result<ScanResult, ScanError>?>
-    
-    var body: some View {
-        NavigationStack {
-            CodeScannerView(codeTypes: [.qr]) {
-                result.wrappedValue = $0
-                dismiss()
-            }
-            .ignoresSafeArea()
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("关闭", role: .cancel) {
-                        dismiss()
-                    }
-                }
-            }
-        }
     }
 }
