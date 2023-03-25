@@ -2,28 +2,25 @@ import Foundation
 
 final class MGRouteViewModel: ObservableObject {
     
-    @Published var usingPredefinedRule: Bool
-    @Published var domainStrategy: MGConfiguration.RouteDomainStrategy
-    @Published var predefinedRule: MGConfiguration.RoutePredefinedRule
-    @Published var customizedRule: String
-        
-    private var current: MGRouteModel
+    @Published var domainStrategy: MGRouteModel.DomainStrategy
+    @Published var domainMatcher: MGRouteModel.DomainMatcher
+    @Published var rules: [MGRouteModel.Rule]
+    @Published var balancers: [MGRouteModel.Balancer]
     
     init() {
-        let model                   = MGRouteModel.current
-        self.usingPredefinedRule    = model.usingPredefinedRule
-        self.domainStrategy         = model.domainStrategy
-        self.predefinedRule         = model.predefinedRule
-        self.customizedRule         = model.customizedRule
-        self.current = model
+        let model = MGRouteModel.current
+        self.domainStrategy = model.domainStrategy
+        self.domainMatcher = model.domainMatcher
+        self.rules = model.rules
+        self.balancers = model.balancers
     }
     
     static func setupDefaultSettingsIfNeeded() {
-        guard UserDefaults.shared.data(forKey: MGConstant.sniffing) == nil else {
+        guard UserDefaults.shared.data(forKey: MGConstant.route) == nil else {
             return
         }
         do {
-            UserDefaults.shared.set(try JSONEncoder().encode(MGSniffingModel.default), forKey: MGConstant.sniffing)
+            UserDefaults.shared.set(try JSONEncoder().encode(MGRouteModel.default), forKey: MGConstant.route)
         } catch {
             fatalError(error.localizedDescription)
         }
@@ -32,16 +29,15 @@ final class MGRouteViewModel: ObservableObject {
     func save(updated: () -> Void) {
         do {
             let model = MGRouteModel(
-                usingPredefinedRule: self.usingPredefinedRule,
                 domainStrategy: self.domainStrategy,
-                predefinedRule: self.predefinedRule,
-                customizedRule: self.customizedRule
+                domainMatcher: self.domainMatcher,
+                rules: self.rules,
+                balancers: self.balancers
             )
-            guard model != self.current else {
+            guard model != .current else {
                 return
             }
-            UserDefaults.shared.set(try JSONEncoder().encode(model), forKey: MGConstant.sniffing)
-            self.current = model
+            UserDefaults.shared.set(try JSONEncoder().encode(model), forKey: MGConstant.route)
             updated()
         } catch {
             fatalError(error.localizedDescription)

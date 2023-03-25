@@ -6,17 +6,101 @@ extension MGConstant {
 
 public struct MGRouteModel: Codable, Equatable {
     
-    public let usingPredefinedRule: Bool
-    public let domainStrategy: MGConfiguration.RouteDomainStrategy
-    public let predefinedRule: MGConfiguration.RoutePredefinedRule
-    public let customizedRule: String
+    public enum DomainStrategy: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+        public var id: Self { self }
+        case asIs, ipIfNonMatch, ipOnDemand
+        public var description: String {
+            switch self {
+            case .asIs:
+                return "AsIs"
+            case .ipIfNonMatch:
+                return "IPIfNonMatch"
+            case .ipOnDemand:
+                return "IPOnDemand"
+            }
+        }
+    }
     
-    public static let `default` = MGRouteModel(
-        usingPredefinedRule: true,
-        domainStrategy: .asIs,
-        predefinedRule: .rule,
-        customizedRule: "[]"
-    )
+    public enum DomainMatcher: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+        public var id: Self { self }
+        case hybrid, linear
+        public var description: String {
+            switch self {
+            case .hybrid:
+                return "Hybrid"
+            case .linear:
+                return "Linear"
+            }
+        }
+    }
+    
+    public struct Rule: Codable, Equatable, Identifiable {
+        
+        public var id: UUID { self.__id__ }
+        
+        public var domainMatcher: DomainMatcher = .hybrid
+        public var type: String = "field"
+        public var domain: [String] = []
+        public var ip: [String] = []
+        public var port: String = ""
+        public var sourcePort: String = ""
+        public var network: String = "tcp,udp"
+        public var source: [String] = []
+        public var user: [String] = []
+        public var inboundTag: [String] = []
+        public var `protocol`: [String] = []
+        public var attrs: String = ""
+        public var outboundTag: String = ""
+        public var balancerTag: String = ""
+        
+        public var __id__: UUID = UUID()
+        public var __name__: String = ""
+        public var __enabled__: Bool = true
+    }
+    
+    public struct Balancer: Codable, Equatable {
+        var tag: String
+        var selector: [String] = []
+    }
+    
+    public var domainStrategy: DomainStrategy = .asIs
+    public var domainMatcher: DomainMatcher = .hybrid
+    public var rules: [Rule] = [
+        Rule(
+            domain: ["geosite:category-ads-all"],
+            outboundTag: "block",
+            __name__: "广告"
+        ),
+        Rule(
+            domain: ["geosite:category-games@cn"],
+            outboundTag: "direct",
+            __name__: "游戏"
+        ),
+        Rule(
+            domain: ["geosite:geolocation-!cn"],
+            outboundTag: "proxy",
+            __name__: "非大陆地址"
+        ),
+        Rule(
+            domain: [
+                "geosite:cn",
+                "geosite:private"
+            ],
+            outboundTag: "direct",
+            __name__: "大陆及私有地址"
+        ),
+        Rule(
+            ip: [
+                "geoip:cn",
+                "geoip:private"
+            ],
+            outboundTag: "direct",
+            __name__: "大陆及私有 IP"
+        )
+    ]
+    public var balancers: [Balancer] = []
+    
+    public static let `default` = MGRouteModel()
     
     public static var current: MGRouteModel {
         do {
