@@ -78,6 +78,7 @@ final class MGCreateOrUpdateConfigurationViewModel: ObservableObject {
     
     private func createConfigurationModel() -> MGConfiguration.Model {
         var model = MGConfiguration.Model(
+            protocolType: self.protocolType,
             network: self.transport,
             security: self.security
         )

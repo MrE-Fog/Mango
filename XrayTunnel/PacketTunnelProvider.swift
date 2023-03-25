@@ -165,61 +165,20 @@ extension MGConfiguration {
     func loadData(inboundPort: Int) throws -> Data {
         let file = MGConstant.configDirectory.appending(component: "\(self.id)/config.json")
         let data = try Data(contentsOf: file)
-        if let protocolType = self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) {
-            let model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
-            return try model.buildConfigurationData(of: protocolType, inboundPort: inboundPort)
-        } else {
+        if self.attributes.source.scheme.flatMap(MGConfiguration.ProtocolType.init(rawValue:)) == nil {
             return data
+        } else {
+            let model = try JSONDecoder().decode(MGConfiguration.Model.self, from: data)
+            return try model.buildConfigurationData(inboundPort: inboundPort)
         }
     }
 }
 
 extension MGConfiguration.Model {
     
-    func buildConfigurationData(of protocolType: MGConfiguration.ProtocolType, inboundPort: Int) throws -> Data {
+    func buildConfigurationData(inboundPort: Int) throws -> Data {
         var configuration: [String: Any] = [:]
-        configuration["inbounds"] = {
-            var inbound: [String: Any] = [:]
-            inbound["listen"] = "[::1]"
-            inbound["protocol"] = "socks"
-            inbound["settings"] = {
-                var settings: [String: Any] = [:]
-                settings["udp"] = true
-                settings["auth"] = "noauth"
-                return settings
-            }()
-            inbound["tag"] = "socks-in"
-            inbound["port"] = inboundPort
-            inbound["sniffing"] = {
-                let current = MGSniffingModel.current
-                var sniffing: [String: Any] = [:]
-                sniffing["enabled"] = current.enabled
-                sniffing["destOverride"] = {
-                    var destOverride: [String] = []
-                    if current.httpEnabled {
-                        destOverride.append("http")
-                    }
-                    if current.tlsEnabled {
-                        destOverride.append("tls")
-                    }
-                    if current.quicEnabled {
-                        destOverride.append("quic")
-                    }
-                    if current.fakednsEnabled {
-                        destOverride.append("fakedns")
-                    }
-                    if destOverride.count == 4 {
-                        destOverride = ["fakedns+others"]
-                    }
-                    return destOverride
-                }()
-                sniffing["metadataOnly"] = current.metadataOnly
-                sniffing["domainsExcluded"] = current.excludedDomains
-                sniffing["routeOnly"] = current.routeOnly
-                return sniffing
-            }()
-            return [inbound]
-        }()
+        configuration["inbounds"] = [try self.buildInbound(inboundPort: inboundPort)]
         configuration["routing"] = {
             let model = MGRouteModel.current
             var routing: [String: Any] = [:]
@@ -268,85 +227,147 @@ extension MGConfiguration.Model {
             }
             return routing
         }()
-        configuration["outbounds"] = {
-            var proxy: [String: Any] = [:]
-            proxy["tag"] = "proxy"
-            proxy["protocol"] = protocolType.rawValue
-            proxy["settings"] = {
-                switch protocolType {
-                case .vless:
-                    guard let vless = self.vless?.toJSON() else {
-                        return nil
-                    }
-                    return ["vnext": [vless]]
-                case .vmess:
-                    guard let vmess = self.vmess?.toJSON() else {
-                        return nil
-                    }
-                    return ["vnext": [vmess]]
-                case .trojan:
-                    guard let trojan = self.trojan?.toJSON() else {
-                        return nil
-                    }
-                    return ["servers": [trojan]]
-                case .shadowsocks:
-                    guard let shadowsocks = self.shadowsocks?.toJSON() else {
-                        return nil
-                    }
-                    return ["servers": [shadowsocks]]
-                }
-            }()
-            proxy["streamSettings"] = {
-                var network: [String: Any] = [:]
-                network["network"] = self.network.rawValue
-                switch self.network {
-                case .tcp:
-                    network["tcpSettings"] = self.tcp?.toJSON()
-                case .kcp:
-                    network["kcpSettings"] = self.kcp?.toJSON()
-                case .ws:
-                    network["wsSettings"] = self.ws?.toJSON()
-                case .http:
-                    network["httpSettings"] = self.http?.toJSON()
-                case .quic:
-                    network["quicSettings"] = self.quic?.toJSON()
-                case .grpc:
-                    network["grpcSettings"] = self.grpc?.toJSON()
-                }
-                network["security"] = self.security.rawValue
-                switch self.security {
-                case .none:
-                    break
-                case .tls:
-                    network["tlsSettings"] = self.tls?.toJSON()
-                case .reality:
-                    network["realitySettings"] = self.reality?.toJSON()
-                }
-                return network
-            }()
-            
-            let direct: [String: String] = [
-                "tag": "direct",
-                "protocol": "freedom"
-            ]
-            
-            let block: [String: Any] = [
-                "tag": "block",
-                "protocol": "blackhole"
-            ]
-            
-            return [proxy, direct, block]
-        }()
+                
+        configuration["outbounds"] = [
+            try self.buildProxyOutbound(),
+            try self.buildDirectOutbound(),
+            try self.buildBlockOutbound()
+        ]
+        
         return try JSONSerialization.data(withJSONObject: configuration, options: .prettyPrinted)
     }
-}
-
-extension Encodable {
-    func toJSON() -> Any? {
-        do {
-            return try JSONSerialization.jsonObject(with: try JSONEncoder().encode(self))
-        } catch {
-            return nil
+    
+    private func buildInbound(inboundPort: Int) throws -> Any {
+        var inbound: [String: Any] = [:]
+        inbound["listen"] = "[::1]"
+        inbound["protocol"] = "socks"
+        inbound["settings"] = [
+            "udp": true,
+            "auth": "noauth"
+        ]
+        inbound["tag"] = "socks-in"
+        inbound["port"] = inboundPort
+        inbound["sniffing"] = {
+            let current = MGSniffingModel.current
+            var sniffing: [String: Any] = [:]
+            sniffing["enabled"] = current.enabled
+            sniffing["destOverride"] = {
+                var destOverride: [String] = []
+                if current.httpEnabled {
+                    destOverride.append("http")
+                }
+                if current.tlsEnabled {
+                    destOverride.append("tls")
+                }
+                if current.quicEnabled {
+                    destOverride.append("quic")
+                }
+                if current.fakednsEnabled {
+                    destOverride.append("fakedns")
+                }
+                if destOverride.count == 4 {
+                    destOverride = ["fakedns+others"]
+                }
+                return destOverride
+            }()
+            sniffing["metadataOnly"] = current.metadataOnly
+            sniffing["domainsExcluded"] = current.excludedDomains
+            sniffing["routeOnly"] = current.routeOnly
+            return sniffing
+        }()
+        return inbound
+    }
+    
+    private func buildProxyOutbound() throws -> Any {
+        var proxy: [String: Any] = [:]
+        proxy["tag"] = "proxy"
+        proxy["protocol"] = self.protocolType.rawValue
+        switch self.protocolType {
+        case .vless:
+            guard let vless = self.vless else {
+                throw NSError.newError("\(self.protocolType.description) 构建失败")
+            }
+            proxy["settings"] = ["vnext": [try JSONSerialization.jsonObject(with: try JSONEncoder().encode(vless))]]
+        case .vmess:
+            guard let vmess = self.vmess else {
+                throw NSError.newError("\(self.protocolType.description) 构建失败")
+            }
+            proxy["settings"] = ["vnext": [try JSONSerialization.jsonObject(with: try JSONEncoder().encode(vmess))]]
+        case .trojan:
+            guard let trojan = self.trojan else {
+                throw NSError.newError("\(self.protocolType.description) 构建失败")
+            }
+            proxy["settings"] = ["servers": [try JSONSerialization.jsonObject(with: try JSONEncoder().encode(trojan))]]
+        case .shadowsocks:
+            guard let shadowsocks = self.shadowsocks else {
+                throw NSError.newError("\(self.protocolType.description) 构建失败")
+            }
+            proxy["settings"] = ["servers": [try JSONSerialization.jsonObject(with: try JSONEncoder().encode(shadowsocks))]]
         }
+        var streamSettings: [String: Any] = [:]
+        streamSettings["network"] = self.network.rawValue
+        switch self.network {
+        case .tcp:
+            guard let tcp = self.tcp else {
+                throw NSError.newError("\(self.network.description) 构建失败")
+            }
+            streamSettings["tcpSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(tcp))
+        case .kcp:
+            guard let kcp = self.kcp else {
+                throw NSError.newError("\(self.network.description) 构建失败")
+            }
+            streamSettings["kcpSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(kcp))
+        case .ws:
+            guard let ws = self.ws else {
+                throw NSError.newError("\(self.network.description) 构建失败")
+            }
+            streamSettings["wsSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(ws))
+        case .http:
+            guard let http = self.http else {
+                throw NSError.newError("\(self.network.description) 构建失败")
+            }
+            streamSettings["httpSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(http))
+        case .quic:
+            guard let quic = self.quic else {
+                throw NSError.newError("\(self.network.description) 构建失败")
+            }
+            streamSettings["quicSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(quic))
+        case .grpc:
+            guard let grpc = self.grpc else {
+                throw NSError.newError("\(self.network.description) 构建失败")
+            }
+            streamSettings["grpcSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(grpc))
+        }
+        streamSettings["security"] = self.security
+        switch self.security {
+        case .none:
+            break
+        case .tls:
+            guard let tls = self.tls else {
+                throw NSError.newError("\(self.security.description) 构建失败")
+            }
+            streamSettings["tlsSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(tls))
+        case .reality:
+            guard let reality = self.reality else {
+                throw NSError.newError("\(self.security.description) 构建失败")
+            }
+            streamSettings["realitySettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(reality))
+        }
+        proxy["streamSettings"] = streamSettings
+        return proxy
+    }
+    
+    private func buildDirectOutbound() throws -> Any {
+        return [
+            "tag": "direct",
+            "protocol": "freedom"
+        ]
+    }
+    
+    private func buildBlockOutbound() throws -> Any {
+        return [
+            "tag": "block",
+            "protocol": "blackhole"
+        ]
     }
 }

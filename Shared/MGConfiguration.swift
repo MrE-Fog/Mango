@@ -383,6 +383,7 @@ extension MGConfiguration {
     
     public struct Model: Codable {
         
+        public var protocolType : MGConfiguration.ProtocolType
         public var vless        : MGConfiguration.VLESS?
         public var vmess        : MGConfiguration.VMess?
         public var trojan       : MGConfiguration.Trojan?

@@ -422,6 +422,7 @@ extension MGConfiguration.StreamSettings.Reality: MGConfigurationParserProtocol 
 extension MGConfiguration.Model {
     
     init(components: MGConfiguration.URLComponents) throws {
+        self.protocolType   = components.protocolType
         self.vless          = try MGConfiguration.VLESS.parse(with: components)
         self.vmess          = try MGConfiguration.VMess.parse(with: components)
         self.trojan         = try MGConfiguration.Trojan.parse(with: components)
