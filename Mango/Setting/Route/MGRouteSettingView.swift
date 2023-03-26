@@ -181,11 +181,9 @@ struct MGRouteRuleSettingView: View {
                         }))
                     }
                 }
-                LabeledContent("Outbound") {
-                    Picker("Outbound", selection: $rule.outboundTag) {
-                        ForEach(MGRouteModel.Outbound.allCases) { outbound in
-                            Text(outbound.description)
-                        }
+                Picker("Outbound", selection: $rule.outboundTag) {
+                    ForEach(MGRouteModel.Outbound.allCases) { outbound in
+                        Text(outbound.description)
                     }
                 }
             } header: {

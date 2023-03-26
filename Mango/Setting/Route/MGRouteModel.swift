@@ -70,7 +70,7 @@ public struct MGRouteModel: Codable, Equatable {
         
         public var __id__: UUID = UUID()
         public var __name__: String = ""
-        public var __enabled__: Bool = true
+        public var __enabled__: Bool = false
     }
     
     public struct Balancer: Codable, Equatable {
