@@ -179,7 +179,8 @@ extension MGConfiguration.Model {
     func buildConfigurationData(inboundPort: Int) throws -> Data {
         var configuration: [String: Any] = [:]
         configuration["inbounds"] = [try self.buildInbound(inboundPort: inboundPort)]
-        configuration["routing"] = try MGRouteModel.current.build()
+        var route = MGRouteModel.current
+        configuration["routing"] = try route.build()
         configuration["outbounds"] = [
             try self.buildProxyOutbound(),
             try self.buildDirectOutbound(),
@@ -329,51 +330,8 @@ extension MGSniffingModel {
 
 extension MGRouteModel {
     
-    func build() throws -> Any {
-        var routing: [String: Any] = [:]
-        routing["domainStrategy"] = self.domainStrategy.rawValue
-//        if self.usingPredefinedRule {
-//            routing["rules"] = {
-//                let geosite_category_ads_all: [String: Any] = [
-//                    "type": "field",
-//                    "domain": ["geosite:category-ads-all"],
-//                    "outboundTag": "block"
-//                ]
-//                let geosite_games_cn: [String: Any] = [
-//                    "type": "field",
-//                    "domain": ["geosite:category-games@cn"],
-//                    "outboundTag": "direct"
-//                ]
-//                let geosite_geolocation_not_cn: [String: Any] = [
-//                    "type": "field",
-//                    "domain": ["geosite:geolocation-!cn"],
-//                    "outboundTag": "proxy"
-//                ]
-//                let geosite_cn_private: [String: Any] = [
-//                    "type": "field",
-//                    "domain": ["geosite:cn", "geosite:private"],
-//                    "outboundTag": "direct"
-//                ]
-//                let geoip_cn_private: [String: Any] = [
-//                    "type": "field",
-//                    "ip": ["geoip:cn", "geoip:private"],
-//                    "outboundTag": "direct"
-//                ]
-//                return [geosite_category_ads_all, geosite_games_cn, geosite_geolocation_not_cn, geosite_cn_private, geoip_cn_private]
-//            }()
-//        } else {
-//            do {
-//                guard let data = self.customizedRule.data(using: .utf8) else {
-//                    throw NSError.newError("")
-//                }
-//                guard let rules = try JSONSerialization.jsonObject(with: data) as? [Any] else {
-//                    throw NSError.newError("")
-//                }
-//                return rules
-//            } catch {
-//                return []
-//            }
-//        }
-        return routing
+    mutating func build() throws -> Any {
+        self.rules = self.rules.filter(\.__enabled__)
+        return try JSONSerialization.jsonObject(with: try JSONEncoder().encode(self))
     }
 }

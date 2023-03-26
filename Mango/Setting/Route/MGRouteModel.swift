@@ -80,39 +80,7 @@ public struct MGRouteModel: Codable, Equatable {
     
     public var domainStrategy: DomainStrategy = .asIs
     public var domainMatcher: DomainMatcher = .hybrid
-    public var rules: [Rule] = [
-        Rule(
-            domain: ["geosite:category-ads-all"],
-            outboundTag: .block,
-            __name__: "广告"
-        ),
-        Rule(
-            domain: ["geosite:category-games@cn"],
-            outboundTag: .direct,
-            __name__: "游戏"
-        ),
-        Rule(
-            domain: ["geosite:geolocation-!cn"],
-            outboundTag: .proxy,
-            __name__: "非大陆地址"
-        ),
-        Rule(
-            domain: [
-                "geosite:cn",
-                "geosite:private"
-            ],
-            outboundTag: .direct,
-            __name__: "大陆及私有地址"
-        ),
-        Rule(
-            ip: [
-                "geoip:cn",
-                "geoip:private"
-            ],
-            outboundTag: .direct,
-            __name__: "大陆及私有 IP"
-        )
-    ]
+    public var rules: [Rule] = []
     public var balancers: [Balancer] = []
     
     public static let `default` = MGRouteModel()
