@@ -106,82 +106,107 @@ struct MGRouteRuleSettingView: View {
                     }
                 }
                 NavigationLink {
-                    MGRouteRuleStringListEditView(title: "Domain", elements: $rule.domain)
+                    MGRouteRuleStringListEditView(title: "Domain", elements: Binding(get: {
+                        rule.domain ?? []
+                    }, set: { newValue in
+                        rule.domain = newValue.isEmpty ? nil : newValue
+                    }))
                 } label: {
-                    LabeledContent("Domain", value: "\(rule.domain.count)")
+                    LabeledContent("Domain", value: "\(rule.domain?.count ?? 0)")
                 }
                 NavigationLink {
-                    MGRouteRuleStringListEditView(title: "IP", elements: $rule.ip)
+                    MGRouteRuleStringListEditView(title: "IP", elements: Binding(get: {
+                        rule.ip ?? []
+                    }, set: { newValue in
+                        rule.ip = newValue.isEmpty ? nil : newValue
+                    }))
                 } label: {
-                    LabeledContent("IP", value: "\(rule.ip.count)")
+                    LabeledContent("IP", value: "\(rule.ip?.count ?? 0)")
                 }
                 NavigationLink {
                     MGRouteRuleStringListEditView(title: "Port", elements:  Binding {
-                        rule.port.components(separatedBy: ",").filter { !$0.isEmpty }
+                        let reval = rule.port ?? ""
+                        return reval.components(separatedBy: ",").filter { !$0.isEmpty }
                     } set: { newValue in
-                        rule.port = newValue.joined(separator: ",")
+                        let reval = newValue.joined(separator: ",")
+                        rule.port = reval.isEmpty ? nil : reval
                     })
                 } label: {
-                    LabeledContent("Port", value: rule.port)
+                    LabeledContent("Port", value: rule.port ?? "")
                 }
                 NavigationLink {
                     MGRouteRuleStringListEditView(title: "Source Port", elements:  Binding {
-                        rule.sourcePort.components(separatedBy: ",").filter { !$0.isEmpty }
+                        let reval = rule.sourcePort ?? ""
+                        return reval.components(separatedBy: ",").filter { !$0.isEmpty }
                     } set: { newValue in
-                        rule.sourcePort = newValue.joined(separator: ",")
+                        let reval = newValue.joined(separator: ",")
+                        rule.sourcePort = reval.isEmpty ? nil : reval
                     })
                 } label: {
-                    LabeledContent("Source Port", value: rule.sourcePort)
+                    LabeledContent("Source Port", value: rule.sourcePort ?? "")
                 }
                 LabeledContent("Network") {
                     HStack {
                         MGToggleButton(title: "TCP", isOn: Binding(get: {
-                            rule.network.components(separatedBy: ",").contains("tcp")
+                            let reval = rule.network ?? ""
+                            return reval.components(separatedBy: ",").contains("tcp")
                         }, set: { newValue in
-                            var components = rule.network.components(separatedBy: ",")
+                            let reval = rule.network ?? ""
+                            var components = reval.components(separatedBy: ",")
                             components.removeAll(where: { $0 == "tcp" })
                             if newValue {
                                 components.insert("tcp", at: 0)
                             }
-                            rule.network = String(components.joined(separator: ","))
+                            rule.network = components.isEmpty ? nil : String(components.joined(separator: ","))
                         }))
                         MGToggleButton(title: "UDP", isOn: Binding(get: {
-                            rule.network.components(separatedBy: ",").contains("udp")
+                            let reval = rule.network ?? ""
+                            return reval.components(separatedBy: ",").contains("udp")
                         }, set: { newValue in
-                            var components = rule.network.components(separatedBy: ",")
+                            let reval = rule.network ?? ""
+                            var components = reval.components(separatedBy: ",")
                             components.removeAll(where: { $0 == "udp" })
                             if newValue {
-                                components.append("udp")
+                                components.insert("udp", at: 0)
                             }
-                            rule.network = String(components.joined(separator: ","))
+                            rule.network = components.isEmpty ? nil : String(components.joined(separator: ","))
                         }))
                     }
                 }
                 LabeledContent("Protocol") {
                     HStack {
                         MGToggleButton(title: "HTTP", isOn: Binding(get: {
-                            rule.protocol.contains("http")
+                            let reval = rule.protocol ?? []
+                            return reval.contains("http")
                         }, set: { newValue in
-                            rule.protocol.removeAll(where: { $0 == "http" })
+                            var reval = rule.protocol ?? []
+                            reval.removeAll(where: { $0 == "http" })
                             if newValue {
-                                rule.protocol.append("http")
+                                reval.append("http")
                             }
+                            rule.protocol = reval.isEmpty ? nil : reval
                         }))
                         MGToggleButton(title: "TLS", isOn: Binding(get: {
-                            rule.protocol.contains("tls")
+                            let reval = rule.protocol ?? []
+                            return reval.contains("tls")
                         }, set: { newValue in
-                            rule.protocol.removeAll(where: { $0 == "tls" })
+                            var reval = rule.protocol ?? []
+                            reval.removeAll(where: { $0 == "tls" })
                             if newValue {
-                                rule.protocol.append("tls")
+                                reval.append("tls")
                             }
+                            rule.protocol = reval.isEmpty ? nil : reval
                         }))
                         MGToggleButton(title: "Bittorrent", isOn: Binding(get: {
-                            rule.protocol.contains("bittorrent")
+                            let reval = rule.protocol ?? []
+                            return reval.contains("bittorrent")
                         }, set: { newValue in
-                            rule.protocol.removeAll(where: { $0 == "bittorrent" })
+                            var reval = rule.protocol ?? []
+                            reval.removeAll(where: { $0 == "bittorrent" })
                             if newValue {
-                                rule.protocol.append("bittorrent")
+                                reval.append("bittorrent")
                             }
+                            rule.protocol = reval.isEmpty ? nil : reval
                         }))
                     }
                 }

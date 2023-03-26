@@ -186,6 +186,7 @@ extension MGConfiguration.Model {
             try self.buildDirectOutbound(),
             try self.buildBlockOutbound()
         ]
+        NSLog(String(data: try JSONSerialization.data(withJSONObject: try route.build(), options: .sortedKeys), encoding: .utf8) ?? "---")
         return try JSONSerialization.data(withJSONObject: configuration, options: .prettyPrinted)
     }
     

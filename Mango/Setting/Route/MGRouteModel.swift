@@ -8,16 +8,11 @@ public struct MGRouteModel: Codable, Equatable {
     
     public enum DomainStrategy: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
         public var id: Self { self }
-        case asIs, ipIfNonMatch, ipOnDemand
+        case asIs           = "AsIs"
+        case ipIfNonMatch   = "IPIfNonMatch"
+        case ipOnDemand     = "IPOnDemand"
         public var description: String {
-            switch self {
-            case .asIs:
-                return "AsIs"
-            case .ipIfNonMatch:
-                return "IPIfNonMatch"
-            case .ipOnDemand:
-                return "IPOnDemand"
-            }
+            return self.rawValue
         }
     }
     
@@ -55,18 +50,18 @@ public struct MGRouteModel: Codable, Equatable {
         
         public var domainMatcher: DomainMatcher = .hybrid
         public var type: String = "field"
-        public var domain: [String] = []
-        public var ip: [String] = []
-        public var port: String = ""
-        public var sourcePort: String = ""
-        public var network: String = "tcp,udp"
-        public var source: [String] = []
-        public var user: [String] = []
-        public var inboundTag: [String] = []
-        public var `protocol`: [String] = []
-        public var attrs: String = ""
+        public var domain: [String]?
+        public var ip: [String]?
+        public var port: String?
+        public var sourcePort: String?
+        public var network: String?
+        public var source: [String]?
+        public var user: [String]?
+        public var inboundTag: [String]?
+        public var `protocol`: [String]?
+        public var attrs: String?
         public var outboundTag: Outbound = .direct
-        public var balancerTag: String = ""
+        public var balancerTag: String?
         
         public var __id__: UUID = UUID()
         public var __name__: String = ""

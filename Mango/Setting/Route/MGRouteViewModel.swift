@@ -5,14 +5,12 @@ final class MGRouteViewModel: ObservableObject {
     @Published var domainStrategy: MGRouteModel.DomainStrategy
     @Published var domainMatcher: MGRouteModel.DomainMatcher
     @Published var rules: [MGRouteModel.Rule]
-    @Published var balancers: [MGRouteModel.Balancer]
     
     init() {
         let model = MGRouteModel.current
         self.domainStrategy = model.domainStrategy
         self.domainMatcher = model.domainMatcher
         self.rules = model.rules
-        self.balancers = model.balancers
     }
     
     static func setupDefaultSettingsIfNeeded() {
@@ -31,8 +29,7 @@ final class MGRouteViewModel: ObservableObject {
             let model = MGRouteModel(
                 domainStrategy: self.domainStrategy,
                 domainMatcher: self.domainMatcher,
-                rules: self.rules,
-                balancers: self.balancers
+                rules: self.rules
             )
             guard model != .current else {
                 return
