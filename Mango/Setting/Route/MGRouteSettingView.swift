@@ -91,123 +91,148 @@ struct MGRouteSettingView: View {
     }
 }
 
-struct MGRouteSettingRuleView: View {
-        
-    @Binding var currentEditingRouteID: String
-    @Binding var rule: MGRouteModel.Rule
-    
-    @State private var domain: String = ""
-    
-    var body: some View {
-        DisclosureGroup(isExpanded: .constant(self.currentEditingRouteID == rule.__id__.uuidString)) {
-            Group {
-                LabeledContent("规则名称") {
-                    TextField("", text: $rule.__name__)
-                }
-                Picker("匹配算法", selection: $rule.domainMatcher) {
-                    ForEach(MGRouteModel.DomainMatcher.allCases) { strategy in
-                        Text(strategy.description)
-                    }
-                }
-            }
-            Group {
-                MGStringListDisclosureGroup(title: "域名", prompt: "输入域名", elements: $rule.domain)
-                MGStringListDisclosureGroup(title: "IP", prompt: "输入 IP", elements: $rule.ip)
-            }
-            Group {
-                LabeledContent("目标端口") {
-                    TextField("", text: $rule.port)
-                }
-                LabeledContent("来源端口") {
-                    TextField("", text: $rule.sourcePort)
-                }
-                LabeledContent("网络") {
-                    TextField("", text: $rule.network)
-                }
-            }
-            Group {
-                MGStringListDisclosureGroup(title: "来源 IP", prompt: "输入来源 IP", elements: $rule.user)
-                MGStringListDisclosureGroup(title: "来源用户", prompt: "输入来源用户", elements: $rule.user)
-            }
-            Group {
-                LabeledContent("协议") {
-                    TextField("", text: $rule.attrs)
-                }
-                LabeledContent("脚本") {
-                    TextField("", text: $rule.attrs)
-                }
-                LabeledContent("出站标识") {
-                    TextField("", text: $rule.outboundTag)
-                }
-            }
-        } label: {
-            HStack {
-                Text(rule.__name__)
-                Spacer()
-                Toggle("", isOn: $rule.__enabled__)
-                    .labelsHidden()
-                    .fixedSize()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                withAnimation(.spring()) {
-                    if self.currentEditingRouteID == rule.__id__.uuidString {
-                        self.currentEditingRouteID = ""
-                    } else {
-                        self.currentEditingRouteID = rule.__id__.uuidString
-                    }
-                }
-            }
-        }
-        .lineLimit(1)
-        .multilineTextAlignment(.trailing)
-    }
-}
-
-struct MGStringListDisclosureGroup: View {
-    
-    @State private var value: String = ""
-    
-    let title: String
-    let prompt: String
-    
-    @Binding var elements: [String]
-    
-    var body: some View {
-        DisclosureGroup {
-            ForEach(Array(elements.enumerated()), id: \.element) { pair in
-                Text(pair.element)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button("删除", role: .destructive) {
-                            elements.remove(at: pair.offset)
-                        }
-                    }
-            }
-            TextField(prompt, text: $value)
-                .multilineTextAlignment(.leading)
-                .onSubmit {
-                    let reval = value.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !reval.isEmpty && !elements.contains(reval) {
-                        elements.append(reval)
-                    }
-                    value = ""
-                }
-        } label: {
-            HStack {
-                Text(title)
-                Spacer()
-                Text("\(elements.count)")
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-}
-
 struct MGRouteRuleSettingView: View {
     
     @Binding var rule: MGRouteModel.Rule
     
     var body: some View {
-        Text("")
+        Form {
+            Section {
+                LabeledContent("Name") {
+                    TextField("", text: $rule.__name__)
+                }
+                Picker("Matcher", selection: $rule.domainMatcher) {
+                    ForEach(MGRouteModel.DomainMatcher.allCases) { strategy in
+                        Text(strategy.description)
+                    }
+                }
+                NavigationLink {
+                    MGRouteRuleStringListEditView(title: "Domain", elements: $rule.domain)
+                } label: {
+                    LabeledContent("Domain", value: "\(rule.domain.count)")
+                }
+                NavigationLink {
+                    MGRouteRuleStringListEditView(title: "IP", elements: $rule.ip)
+                } label: {
+                    LabeledContent("IP", value: "\(rule.ip.count)")
+                }
+                LabeledContent("Port") {
+                    TextField("", text: $rule.sourcePort)
+                }
+                LabeledContent("Source Port") {
+                    TextField("", text: $rule.port)
+                }
+                LabeledContent("Network") {
+                    HStack {
+                        MGToggleButton(title: "TCP", isOn: Binding(get: {
+                            rule.network.components(separatedBy: ",").contains("tcp")
+                        }, set: { newValue in
+                            var components = rule.network.components(separatedBy: ",")
+                            components.removeAll(where: { $0 == "tcp" })
+                            if newValue {
+                                components.insert("tcp", at: 0)
+                            }
+                            rule.network = String(components.joined(separator: ","))
+                        }))
+                        MGToggleButton(title: "UDP", isOn: Binding(get: {
+                            rule.network.components(separatedBy: ",").contains("udp")
+                        }, set: { newValue in
+                            var components = rule.network.components(separatedBy: ",")
+                            components.removeAll(where: { $0 == "udp" })
+                            if newValue {
+                                components.append("udp")
+                            }
+                            rule.network = String(components.joined(separator: ","))
+                        }))
+                    }
+                }
+                LabeledContent("Protocol") {
+                    HStack {
+                        MGToggleButton(title: "HTTP", isOn: Binding(get: {
+                            rule.protocol.contains("http")
+                        }, set: { newValue in
+                            rule.protocol.removeAll(where: { $0 == "http" })
+                            if newValue {
+                                rule.protocol.append("http")
+                            }
+                        }))
+                        MGToggleButton(title: "TLS", isOn: Binding(get: {
+                            rule.protocol.contains("tls")
+                        }, set: { newValue in
+                            rule.protocol.removeAll(where: { $0 == "tls" })
+                            if newValue {
+                                rule.protocol.append("tls")
+                            }
+                        }))
+                        MGToggleButton(title: "Bittorrent", isOn: Binding(get: {
+                            rule.protocol.contains("bittorrent")
+                        }, set: { newValue in
+                            rule.protocol.removeAll(where: { $0 == "bittorrent" })
+                            if newValue {
+                                rule.protocol.append("bittorrent")
+                            }
+                        }))
+                    }
+                }
+                LabeledContent("Outbound") {
+                    TextField("", text: $rule.outboundTag)
+                }
+            } header: {
+                Text("Settings")
+            }
+        }
+        .lineLimit(1)
+        .multilineTextAlignment(.trailing)
+        .navigationTitle(Text(rule.__name__))
+        .navigationBarTitleDisplayMode(.large)
+    }
+}
+
+struct MGRouteRuleStringListEditView: View {
+    
+    let title: String
+    @Binding var elements: [String]
+    
+    @State private var isPresented: Bool = false
+    @State private var value: String = ""
+    
+    var body: some View {
+        Form {
+            Section {
+                ForEach(elements, id: \.self) { element in
+                    Text(element)
+                }
+                .onMove { from, to in
+                    elements.move(fromOffsets: from, toOffset: to)
+                }
+                .onDelete { offseets in
+                    elements.remove(atOffsets: offseets)
+                }
+                
+            } header: {
+                Text("List")
+            }
+        }
+        .environment(\.editMode, .constant(.active))
+        .navigationTitle(Text(title))
+        .navigationBarTitleDisplayMode(.large)
+        .alert("Add", isPresented: $isPresented) {
+            TextField("", text: $value)
+            Button("Done") {
+                let reavl = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !reavl.isEmpty && !elements.contains(reavl) {
+                    elements.append(reavl)
+                }
+                value = ""
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .toolbar {
+            Button {
+                isPresented.toggle()
+            } label: {
+                Image(systemName: "plus")
+            }
+        }
     }
 }
