@@ -113,11 +113,23 @@ struct MGRouteRuleSettingView: View {
                 } label: {
                     LabeledContent("IP", value: "\(rule.ip.count)")
                 }
-                LabeledContent("Port") {
-                    TextField("", text: $rule.sourcePort)
+                NavigationLink {
+                    MGRouteRuleStringListEditView(title: "Port", elements:  Binding {
+                        rule.port.components(separatedBy: ",").filter { !$0.isEmpty }
+                    } set: { newValue in
+                        rule.port = newValue.joined(separator: ",")
+                    })
+                } label: {
+                    LabeledContent("Port", value: rule.port)
                 }
-                LabeledContent("Source Port") {
-                    TextField("", text: $rule.port)
+                NavigationLink {
+                    MGRouteRuleStringListEditView(title: "Source Port", elements:  Binding {
+                        rule.sourcePort.components(separatedBy: ",").filter { !$0.isEmpty }
+                    } set: { newValue in
+                        rule.sourcePort = newValue.joined(separator: ",")
+                    })
+                } label: {
+                    LabeledContent("Source Port", value: rule.sourcePort)
                 }
                 LabeledContent("Network") {
                     HStack {
