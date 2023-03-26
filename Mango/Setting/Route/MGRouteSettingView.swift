@@ -54,7 +54,9 @@ struct MGRouteSettingView: View {
                 }
                 Button("添加规则") {
                     withAnimation {
-                        routeViewModel.rules.append(MGRouteModel.Rule())
+                        var rule = MGRouteModel.Rule()
+                        rule.__name__ = rule.__defaultName__
+                        routeViewModel.rules.append(rule)
                     }
                 }
             } header: {
@@ -85,7 +87,9 @@ struct MGRouteSettingView: View {
                 }
             }
         }
+        .lineLimit(1)
         .navigationTitle(Text("路由设置"))
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -192,6 +196,11 @@ struct MGRouteRuleSettingView: View {
             Section {
                 LabeledContent("Name") {
                     TextField("", text: $rule.__name__)
+                        .onSubmit {
+                            if rule.__name__.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                rule.__name__ = rule.__defaultName__
+                            }
+                        }
                 }
                 Toggle("Enable", isOn: $rule.__enabled__)
             } header: {

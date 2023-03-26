@@ -71,6 +71,10 @@ public struct MGRouteModel: Codable, Equatable {
         public var __id__: UUID = UUID()
         public var __name__: String = ""
         public var __enabled__: Bool = false
+        
+        public var __defaultName__: String {
+            "Rule_\(self.__id__.uuidString)"
+        }
     }
     
     public struct Balancer: Codable, Equatable {
