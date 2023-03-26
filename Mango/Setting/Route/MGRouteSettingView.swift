@@ -34,7 +34,7 @@ struct MGRouteSettingView: View {
                     } label: {
                         HStack {
                             LabeledContent {
-                                Text(rule.outboundTag.wrappedValue)
+                                Text(rule.outboundTag.wrappedValue.description)
                             } label: {
                                 Label {
                                     Text(rule.__name__.wrappedValue)
@@ -42,7 +42,7 @@ struct MGRouteSettingView: View {
                                     Image(systemName: "circle.fill")
                                         .resizable()
                                         .frame(width: 8, height: 8)
-                                        .foregroundColor(rule.__enabled__.wrappedValue ? .green : .red)
+                                        .foregroundColor(rule.__enabled__.wrappedValue ? .green : .gray)
                                 }
                             }
                         }
@@ -98,9 +98,6 @@ struct MGRouteRuleSettingView: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Name") {
-                    TextField("", text: $rule.__name__)
-                }
                 Picker("Matcher", selection: $rule.domainMatcher) {
                     ForEach(MGRouteModel.DomainMatcher.allCases) { strategy in
                         Text(strategy.description)
@@ -175,10 +172,22 @@ struct MGRouteRuleSettingView: View {
                     }
                 }
                 LabeledContent("Outbound") {
-                    TextField("", text: $rule.outboundTag)
+                    Picker("Outbound", selection: $rule.outboundTag) {
+                        ForEach(MGRouteModel.Outbound.allCases) { outbound in
+                            Text(outbound.description)
+                        }
+                    }
                 }
             } header: {
                 Text("Settings")
+            }
+            Section {
+                LabeledContent("Name") {
+                    TextField("", text: $rule.__name__)
+                }
+                Toggle("Enable", isOn: $rule.__enabled__)
+            } header: {
+                Text("Other")
             }
         }
         .lineLimit(1)

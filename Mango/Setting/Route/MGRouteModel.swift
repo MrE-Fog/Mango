@@ -34,6 +34,21 @@ public struct MGRouteModel: Codable, Equatable {
         }
     }
     
+    public enum Outbound: String, Identifiable, CaseIterable, CustomStringConvertible, Codable {
+        public var id: Self { self }
+        case direct, proxy, block
+        public var description: String {
+            switch self {
+            case .direct:
+                return "Direct"
+            case .proxy:
+                return "Proxy"
+            case .block:
+                return "Block"
+            }
+        }
+    }
+    
     public struct Rule: Codable, Equatable, Identifiable {
         
         public var id: UUID { self.__id__ }
@@ -50,7 +65,7 @@ public struct MGRouteModel: Codable, Equatable {
         public var inboundTag: [String] = []
         public var `protocol`: [String] = []
         public var attrs: String = ""
-        public var outboundTag: String = ""
+        public var outboundTag: Outbound = .direct
         public var balancerTag: String = ""
         
         public var __id__: UUID = UUID()
@@ -68,17 +83,17 @@ public struct MGRouteModel: Codable, Equatable {
     public var rules: [Rule] = [
         Rule(
             domain: ["geosite:category-ads-all"],
-            outboundTag: "block",
+            outboundTag: .block,
             __name__: "广告"
         ),
         Rule(
             domain: ["geosite:category-games@cn"],
-            outboundTag: "direct",
+            outboundTag: .direct,
             __name__: "游戏"
         ),
         Rule(
             domain: ["geosite:geolocation-!cn"],
-            outboundTag: "proxy",
+            outboundTag: .proxy,
             __name__: "非大陆地址"
         ),
         Rule(
@@ -86,7 +101,7 @@ public struct MGRouteModel: Codable, Equatable {
                 "geosite:cn",
                 "geosite:private"
             ],
-            outboundTag: "direct",
+            outboundTag: .direct,
             __name__: "大陆及私有地址"
         ),
         Rule(
@@ -94,7 +109,7 @@ public struct MGRouteModel: Codable, Equatable {
                 "geoip:cn",
                 "geoip:private"
             ],
-            outboundTag: "direct",
+            outboundTag: .direct,
             __name__: "大陆及私有 IP"
         )
     ]
@@ -104,7 +119,7 @@ public struct MGRouteModel: Codable, Equatable {
     
     public static var current: MGRouteModel {
         do {
-            guard let data = UserDefaults.shared.data(forKey: MGConstant.sniffing) else {
+            guard let data = UserDefaults.shared.data(forKey: MGConstant.route) else {
                 return .default
             }
             return try JSONDecoder().decode(MGRouteModel.self, from: data)
