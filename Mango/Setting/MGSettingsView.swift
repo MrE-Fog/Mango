@@ -14,7 +14,7 @@ struct MGSettingsView: View {
                     MGLogEntranceView()
                     MGSniffingEntranceView()
                     MGRouteEntranceView()
-                    MGDNSEntranceView()
+//                    MGDNSEntranceView()
                     MGAssetEntranceView()
                 } header: {
                     Text("内核")

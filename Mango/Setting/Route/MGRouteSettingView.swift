@@ -4,8 +4,6 @@ struct MGRouteSettingView: View {
     
     @EnvironmentObject  private var packetTunnelManager:    MGPacketTunnelManager
     @ObservedObject     private var routeViewModel:         MGRouteViewModel
-            
-    @Environment(\.editMode) var editMode
     
     init(routeViewModel: MGRouteViewModel) {
         self._routeViewModel = ObservedObject(initialValue: routeViewModel)
@@ -59,7 +57,6 @@ struct MGRouteSettingView: View {
                         routeViewModel.rules.append(MGRouteModel.Rule())
                     }
                 }
-                .disabled(self.editMode.flatMap({ $0.wrappedValue == .active }) ?? true)
             } header: {
                 HStack {
                     Text("规则")
@@ -68,6 +65,7 @@ struct MGRouteSettingView: View {
                         .font(.callout)
                         .buttonStyle(.plain)
                         .foregroundColor(.accentColor)
+                        .disabled(routeViewModel.rules.isEmpty)
                 }
             }
         }
