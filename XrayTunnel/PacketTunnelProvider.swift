@@ -263,7 +263,7 @@ extension MGConfiguration.Model {
             }
             streamSettings["grpcSettings"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(grpc))
         }
-        streamSettings["security"] = self.security
+        streamSettings["security"] = self.security.rawValue
         switch self.security {
         case .none:
             break
