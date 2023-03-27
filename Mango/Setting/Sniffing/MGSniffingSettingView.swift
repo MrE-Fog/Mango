@@ -63,16 +63,25 @@ struct MGSniffingSettingView: View {
                 ForEach(sniffingViewModel.excludedDomains, id: \.self) { domain in
                     Text(domain)
                         .lineLimit(1)
-                        .swipeActions {
-                            Button("删除", role: .destructive) {
-                                sniffingViewModel.delete(domain: domain)
-                            }
-                        }
                 }
-                TextField("请输入需要排除的域名", text: $sniffingViewModel.domain)
-                    .onSubmit {
-                        sniffingViewModel.submitDomain()
-                    }
+                .onMove { from, to in
+                    sniffingViewModel.excludedDomains.move(fromOffsets: from, toOffset: to)
+                }
+                .onDelete { offsets in
+                    sniffingViewModel.excludedDomains.remove(atOffsets: offsets)
+                }
+                HStack(spacing: 18) {
+                    Image(systemName: "plus.circle.fill")
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(.green)
+                        .offset(CGSize(width: 2, height: 0))
+                    TextField("请输入需要排除的域名", text: $sniffingViewModel.domain)
+                        .onSubmit {
+                            sniffingViewModel.submitDomain()
+                        }
+                        .multilineTextAlignment(.leading)
+                }
             } header: {
                 Text("排除域名")
             } footer: {
@@ -106,5 +115,7 @@ struct MGSniffingSettingView: View {
             }
         }
         .navigationTitle(Text("流量嗅探"))
+        .navigationBarTitleDisplayMode(.large)
+        .environment(\.editMode, .constant(.active))
     }
 }
