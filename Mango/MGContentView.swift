@@ -19,7 +19,7 @@ struct MGContentView: View {
                     Text("配置管理")
                     Image(systemName: "doc")
                 }
-            MGSettingView()
+            MGSettingsView()
                 .tabItem {
                     Text("设置")
                     Image(systemName: "gearshape")

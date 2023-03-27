@@ -12,8 +12,15 @@ final class MGConfigurationListManager: ObservableObject {
     
     private func loadConfigurations() -> [MGConfiguration] {
         do {
-            let children = try FileManager.default.contentsOfDirectory(at: MGConstant.configDirectory, includingPropertiesForKeys: nil)
-            return children.compactMap(MGConfiguration.init(url:)).sorted(by: { $0.creationDate < $1.creationDate })
+            let children = try FileManager.default.contentsOfDirectory(atPath: MGConstant.configDirectory.path(percentEncoded: false))
+            let configurations = children.compactMap { id in
+                do {
+                    return try MGConfiguration(uuidString: id)
+                } catch {
+                    return nil
+                }
+            }
+            return configurations.sorted(by: { $0.creationDate > $1.creationDate })
         } catch {
             return []
         }
@@ -36,8 +43,7 @@ final class MGConfigurationListManager: ObservableObject {
         let attributes = MGConfiguration.Attributes(
             alias: name,
             source: configuration.attributes.source,
-            leastUpdated: configuration.attributes.leastUpdated,
-            format: configuration.attributes.format
+            leastUpdated: configuration.attributes.leastUpdated
         )
         try FileManager.default.setAttributes(
             [MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]],
@@ -60,13 +66,12 @@ final class MGConfigurationListManager: ObservableObject {
                 }
             }
             let folderURL = MGConstant.configDirectory.appending(path: configuration.id)
-            let destinationURL = folderURL.appending(path: "config.\(configuration.attributes.format.rawValue)")
+            let destinationURL = folderURL.appending(path: "config.json")
             try FileManager.default.replaceItem(at: destinationURL, withItemAt: tempURL, backupItemName: nil, resultingItemURL: nil)
             let attributes = MGConfiguration.Attributes(
                 alias: configuration.attributes.alias,
                 source: configuration.attributes.source,
-                leastUpdated: Date(),
-                format: configuration.attributes.format
+                leastUpdated: Date()
             )
             try FileManager.default.setAttributes(
                 [MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]],
@@ -81,28 +86,6 @@ final class MGConfigurationListManager: ObservableObject {
                 _ = self.downloadingConfigurationIDs.remove(configuration.id)
             }
             throw error
-        }
-    }
-}
-
-fileprivate extension MGConfiguration {
-    
-    init?(url: URL) {
-        do {
-            guard let id = UUID(uuidString: url.lastPathComponent) else {
-                return nil
-            }
-            let attributes = try FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false))
-            guard let creationDate = attributes[.creationDate] as? Date,
-                  let extends = attributes[MGConfiguration.key] as? [String: Data],
-                  let data = extends[MGConfiguration.Attributes.key] else {
-                return nil
-            }
-            self.id = id.uuidString
-            self.creationDate = creationDate
-            self.attributes = try JSONDecoder().decode(MGConfiguration.Attributes.self, from: data)
-        } catch {
-            return nil
         }
     }
 }

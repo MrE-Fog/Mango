@@ -10,51 +10,37 @@ struct MGConfigurationView: View {
     
     var body: some View {
         Group {
-            if configurationListManager.configurations.isEmpty {
-                HStack {
-                    Spacer()
-                    VStack(spacing: 20) {
-                        Image(systemName: "doc.text.magnifyingglass")
-                            .font(.largeTitle)
-                        Text("暂无配置")
+            if let configuration = configurationListManager.configurations.first(where: { $0.id == current.wrappedValue }) {
+                LabeledContent("名称", value: configuration.attributes.alias)
+                LabeledContent("类型", value: configuration.typeString)
+                LabeledContent("最近更新") {
+                    TimelineView(.periodic(from: Date(), by: 1)) { _ in
+                        Text(configuration.attributes.leastUpdated.formatted(.relative(presentation: .numeric)))
+                            .font(.callout)
+                            .fontWeight(.light)
                     }
-                    .foregroundColor(.secondary)
-                    .padding()
-                    Spacer()
                 }
             } else {
-                ForEach(Array(configurationListManager.configurations.enumerated()), id: \.element.id) { pair in
-                    Button {
-                        guard current.wrappedValue != pair.element.id else {
-                            return
-                        }
-                        current.wrappedValue = pair.element.id
-                        guard let status = packetTunnelManager.status, status == .connected else {
-                            return
-                        }
-                        packetTunnelManager.stop()
-                        Task(priority: .userInitiated) {
-                            do {
-                                try await Task.sleep(for: .milliseconds(500))
-                                try await packetTunnelManager.start()
-                            } catch {}
-                        }
-                    } label: {
-                        Label {
-                            Text(pair.element.attributes.alias)
-                                .lineLimit(1)
-                        } icon: {
-                            Text("\(pair.offset + 1)")
-                                .lineLimit(1)
-                                .monospacedDigit()
-                        }
-                        .foregroundColor(current.wrappedValue == pair.element.id ? .accentColor : .primary)
-                    }
-                }
+                NoCurrentConfigurationView()
             }
         }
         .onAppear {
             configurationListManager.reload()
+        }
+    }
+    
+    @ViewBuilder
+    private func NoCurrentConfigurationView() -> some View {
+        HStack {
+            Spacer()
+            VStack(spacing: 20) {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.largeTitle)
+                Text("无当前配置")
+            }
+            .foregroundColor(.secondary)
+            .padding()
+            Spacer()
         }
     }
     

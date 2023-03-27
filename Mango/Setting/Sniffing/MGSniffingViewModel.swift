@@ -3,29 +3,26 @@ import Foundation
 final class MGSniffingViewModel: ObservableObject {
     
     @Published var enabled: Bool
-    @Published var httpEnabled: Bool
-    @Published var tlsEnabled: Bool
-    @Published var quicEnabled: Bool
-    @Published var fakednsEnabled: Bool
+    @Published var destOverride: [String]
     @Published var metadataOnly: Bool
     @Published var routeOnly: Bool
     @Published var excludedDomains: [String]
     
     @Published var domain: String = ""
-    
-    private var current: MGSniffingModel
-    
+        
     init() {
-        let model               = MGSniffingModel.current
-        self.enabled            = model.enabled
-        self.httpEnabled        = model.httpEnabled
-        self.tlsEnabled         = model.tlsEnabled
-        self.quicEnabled        = model.quicEnabled
-        self.fakednsEnabled     = model.fakednsEnabled
-        self.metadataOnly       = model.metadataOnly
-        self.routeOnly          = model.routeOnly
-        self.excludedDomains    = model.excludedDomains
-        self.current = model
+        let model = MGSniffingModel.current
+        self.enabled = model.enabled
+        self.destOverride = {
+            if model.destOverride.count == 1 && model.destOverride[0] == "fakedns+others" {
+                return ["http", "tls", "quic", "fakedns"]
+            } else {
+                return model.destOverride
+            }
+        }()
+        self.metadataOnly = model.metadataOnly
+        self.routeOnly = model.routeOnly
+        self.excludedDomains = model.excludedDomains
     }
     
     static func setupDefaultSettingsIfNeeded() {
@@ -61,19 +58,21 @@ final class MGSniffingViewModel: ObservableObject {
         do {
             let model = MGSniffingModel(
                 enabled: self.enabled,
-                httpEnabled: self.httpEnabled,
-                tlsEnabled: self.tlsEnabled,
-                quicEnabled: self.quicEnabled,
-                fakednsEnabled: self.fakednsEnabled,
+                destOverride: {
+                    if self.destOverride.count == 4 {
+                        return ["fakedns+others"]
+                    } else {
+                        return self.destOverride
+                    }
+                }(),
                 metadataOnly: self.metadataOnly,
                 routeOnly: self.routeOnly,
                 excludedDomains: self.excludedDomains
             )
-            guard model != self.current else {
+            guard model != MGSniffingModel.current else {
                 return
             }
             UserDefaults.shared.set(try JSONEncoder().encode(model), forKey: MGConstant.sniffing)
-            self.current = model
             updated()
         } catch {
             fatalError(error.localizedDescription)

@@ -1,9 +1,7 @@
 import Foundation
 
 final class MGConfigurationLoadViewModel: ObservableObject {
-    
-    @Published var format: MGConfigurationFormat = .json
-    
+        
     @Published var name:       String = ""
     @Published var urlString:  String = ""
     
@@ -63,8 +61,7 @@ final class MGConfigurationLoadViewModel: ObservableObject {
         let attributes = MGConfiguration.Attributes(
             alias: name.trimmingCharacters(in: .whitespacesAndNewlines),
             source: sourceURL,
-            leastUpdated: Date(),
-            format: self.format
+            leastUpdated: Date()
         )
         try FileManager.default.createDirectory(
             at: folderURL,
@@ -73,7 +70,7 @@ final class MGConfigurationLoadViewModel: ObservableObject {
                 MGConfiguration.key: [MGConfiguration.Attributes.key: try JSONEncoder().encode(attributes)]
             ]
         )
-        let destinationURL = folderURL.appending(component: "config.\(self.format.rawValue)")
+        let destinationURL = folderURL.appending(component: "config.json")
         try FileManager.default.copyItem(at: fileURL, to: destinationURL)
     }
 }

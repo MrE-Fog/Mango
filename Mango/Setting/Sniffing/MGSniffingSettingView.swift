@@ -8,42 +8,50 @@ struct MGSniffingSettingView: View {
     init(sniffingViewModel: MGSniffingViewModel) {
         self._sniffingViewModel = ObservedObject(initialValue: sniffingViewModel)
     }
-        
-    private struct ToggleButton: View {
-        
-        @Environment(\.colorScheme) private var colorScheme
-        
-        let title: String
-        let isOn: Binding<Bool>
-        var body: some View {
-            Toggle(title, isOn: isOn)
-                .background(RoundedRectangle(cornerRadius: 6).fill(isOn.wrappedValue ? .clear : self.backgroundColor))
-                .toggleStyle(.button)
-        }
-        
-        private var backgroundColor: Color {
-            switch colorScheme {
-            case .light:
-                return .gray.opacity(0.1)
-            case .dark:
-                return .white.opacity(0.1)
-            @unknown default:
-                return .gray.opacity(0.1)
-            }
-        }
-    }
     
     var body: some View {
-        List {
+        Form {
             Section {
                 Toggle("状态", isOn: $sniffingViewModel.enabled)
             }
             Section {
                 HStack {
-                    ToggleButton(title: "HTTP",      isOn: $sniffingViewModel.httpEnabled)
-                    ToggleButton(title: "TLS",       isOn: $sniffingViewModel.tlsEnabled)
-                    ToggleButton(title: "QUIC",      isOn: $sniffingViewModel.quicEnabled)
-                    ToggleButton(title: "FAKEDNS",   isOn: $sniffingViewModel.fakednsEnabled)
+                    MGToggleButton(title: "HTTP", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("http")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("http")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "http" })
+                        }
+                    }))
+                    MGToggleButton(title: "TLS", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("tls")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("tls")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "tls" })
+                        }
+                    }))
+                    MGToggleButton(title: "QUIC", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("quic")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("quic")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "quic" })
+                        }
+                    }))
+                    MGToggleButton(title: "FAKEDNS", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("fakedns")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("fakedns")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "fakedns" })
+                        }
+                    }))
                 }
                 .padding(.vertical, 4)
             } header: {
@@ -55,16 +63,25 @@ struct MGSniffingSettingView: View {
                 ForEach(sniffingViewModel.excludedDomains, id: \.self) { domain in
                     Text(domain)
                         .lineLimit(1)
-                        .swipeActions {
-                            Button("删除", role: .destructive) {
-                                sniffingViewModel.delete(domain: domain)
-                            }
-                        }
                 }
-                TextField("请输入需要排除的域名", text: $sniffingViewModel.domain)
-                    .onSubmit {
-                        sniffingViewModel.submitDomain()
-                    }
+                .onMove { from, to in
+                    sniffingViewModel.excludedDomains.move(fromOffsets: from, toOffset: to)
+                }
+                .onDelete { offsets in
+                    sniffingViewModel.excludedDomains.remove(atOffsets: offsets)
+                }
+                HStack(spacing: 18) {
+                    Image(systemName: "plus.circle.fill")
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(.green)
+                        .offset(CGSize(width: 2, height: 0))
+                    TextField("请输入需要排除的域名", text: $sniffingViewModel.domain)
+                        .onSubmit {
+                            sniffingViewModel.submitDomain()
+                        }
+                        .multilineTextAlignment(.leading)
+                }
             } header: {
                 Text("排除域名")
             } footer: {
@@ -98,5 +115,7 @@ struct MGSniffingSettingView: View {
             }
         }
         .navigationTitle(Text("流量嗅探"))
+        .navigationBarTitleDisplayMode(.large)
+        .environment(\.editMode, .constant(.active))
     }
 }

@@ -26,27 +26,15 @@ struct MGConfigurationLoadView: View {
                     HStack(spacing: 4) {
                         TextField(addressPrompt, text: $vm.urlString)
                             .disabled(isAddressTextFieldDisable)
-                        switch location {
-                        case .local:
+                        if location == .local {
                             Button("浏览") {
                                 isFileImporterPresented.toggle()
-                            }
-                            .fixedSize()
-                        case .remote:
-                            Picker(selection: $vm.format) {
-                                ForEach(MGConfigurationFormat.allCases) { format in
-                                    Text(format.rawValue.uppercased())
-                                }
-                            } label: {
-                                EmptyView()
                             }
                             .fixedSize()
                         }
                     }
                 } header: {
                     Text(addressTitle)
-                } footer: {
-                    Text("配置文件支持的格式：\(MGConfigurationFormat.allCases.map({ $0.rawValue.uppercased() }).joined(separator: "、"))")
                 }
                 Section {
                     Button {
@@ -76,7 +64,7 @@ struct MGConfigurationLoadView: View {
             .navigationTitle(Text(title))
             .navigationBarTitleDisplayMode(.large)
             .interactiveDismissDisabled(vm.isProcessing)
-            .fileImporter(isPresented: $isFileImporterPresented, allowedContentTypes: MGConfigurationFormat.allCases.map(\.uniformTypeType)) { result in
+            .fileImporter(isPresented: $isFileImporterPresented, allowedContentTypes: [.json]) { result in
                 switch result {
                 case .success(let success):
                     vm.urlString = success.path(percentEncoded: false)
