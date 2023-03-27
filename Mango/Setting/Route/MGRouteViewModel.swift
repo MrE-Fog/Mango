@@ -13,17 +13,6 @@ final class MGRouteViewModel: ObservableObject {
         self.rules = model.rules
     }
     
-    static func setupDefaultSettingsIfNeeded() {
-        guard UserDefaults.shared.data(forKey: MGConstant.route) == nil else {
-            return
-        }
-        do {
-            UserDefaults.shared.set(try JSONEncoder().encode(MGRouteModel.default), forKey: MGConstant.route)
-        } catch {
-            fatalError(error.localizedDescription)
-        }
-    }
-    
     func save(updated: () -> Void) {
         do {
             let model = MGRouteModel(
