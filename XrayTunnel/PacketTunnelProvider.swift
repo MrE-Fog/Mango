@@ -200,7 +200,7 @@ extension MGConfiguration.Model {
         ]
         inbound["tag"] = "socks-in"
         inbound["port"] = inboundPort
-        inbound["sniffing"] = try MGSniffingModel.current.build()
+        inbound["sniffing"] = try JSONSerialization.jsonObject(with: try JSONEncoder().encode(MGSniffingModel.current))
         return inbound
     }
     
@@ -303,25 +303,25 @@ extension MGSniffingModel {
     func build() throws -> Any {
         var sniffing: [String: Any] = [:]
         sniffing["enabled"] = self.enabled
-        sniffing["destOverride"] = {
-            var destOverride: [String] = []
-            if self.httpEnabled {
-                destOverride.append("http")
-            }
-            if self.tlsEnabled {
-                destOverride.append("tls")
-            }
-            if self.quicEnabled {
-                destOverride.append("quic")
-            }
-            if self.fakednsEnabled {
-                destOverride.append("fakedns")
-            }
-            if destOverride.count == 4 {
-                destOverride = ["fakedns+others"]
-            }
-            return destOverride
-        }()
+//        sniffing["destOverride"] = {
+//            var destOverride: [String] = []
+//            if self.httpEnabled {
+//                destOverride.append("http")
+//            }
+//            if self.tlsEnabled {
+//                destOverride.append("tls")
+//            }
+//            if self.quicEnabled {
+//                destOverride.append("quic")
+//            }
+//            if self.fakednsEnabled {
+//                destOverride.append("fakedns")
+//            }
+//            if destOverride.count == 4 {
+//                destOverride = ["fakedns+others"]
+//            }
+//            return destOverride
+//        }()
         sniffing["metadataOnly"] = self.metadataOnly
         sniffing["domainsExcluded"] = self.excludedDomains
         sniffing["routeOnly"] = self.routeOnly

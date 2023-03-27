@@ -7,20 +7,14 @@ extension MGConstant {
 public struct MGSniffingModel: Codable, Equatable {
     
     public let enabled: Bool
-    public let httpEnabled: Bool
-    public let tlsEnabled: Bool
-    public let quicEnabled: Bool
-    public let fakednsEnabled: Bool
+    public let destOverride: [String]
     public let metadataOnly: Bool
     public let routeOnly: Bool
     public let excludedDomains: [String]
     
     public static let `default` = MGSniffingModel(
         enabled: true,
-        httpEnabled: true,
-        tlsEnabled: true,
-        quicEnabled: false,
-        fakednsEnabled: false,
+        destOverride: ["http", "tls"],
         metadataOnly: false,
         routeOnly: false,
         excludedDomains: []

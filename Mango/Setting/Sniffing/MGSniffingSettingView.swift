@@ -16,10 +16,42 @@ struct MGSniffingSettingView: View {
             }
             Section {
                 HStack {
-                    MGToggleButton(title: "HTTP",      isOn: $sniffingViewModel.httpEnabled)
-                    MGToggleButton(title: "TLS",       isOn: $sniffingViewModel.tlsEnabled)
-                    MGToggleButton(title: "QUIC",      isOn: $sniffingViewModel.quicEnabled)
-                    MGToggleButton(title: "FAKEDNS",   isOn: $sniffingViewModel.fakednsEnabled)
+                    MGToggleButton(title: "HTTP", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("http")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("http")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "http" })
+                        }
+                    }))
+                    MGToggleButton(title: "TLS", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("tls")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("tls")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "tls" })
+                        }
+                    }))
+                    MGToggleButton(title: "QUIC", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("quic")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("quic")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "quic" })
+                        }
+                    }))
+                    MGToggleButton(title: "FAKEDNS", isOn: Binding(get: {
+                        sniffingViewModel.destOverride.contains("fakedns")
+                    }, set: { newValue in
+                        if newValue {
+                            sniffingViewModel.destOverride.append("fakedns")
+                        } else {
+                            sniffingViewModel.destOverride.removeAll(where: { $0 == "fakedns" })
+                        }
+                    }))
                 }
                 .padding(.vertical, 4)
             } header: {
