@@ -105,8 +105,8 @@ struct MGRouteRuleSettingView: View {
                         Text(strategy.description)
                     }
                 }
-                NavigationLink {
-                    MGRouteRuleStringListEditView(title: "Domain", elements: Binding(get: {
+                DisclosureGroup {
+                    MGRouteRuleStringListEditView(elements: Binding(get: {
                         rule.domain ?? []
                     }, set: { newValue in
                         rule.domain = newValue.isEmpty ? nil : newValue
@@ -114,8 +114,8 @@ struct MGRouteRuleSettingView: View {
                 } label: {
                     LabeledContent("Domain", value: "\(rule.domain?.count ?? 0)")
                 }
-                NavigationLink {
-                    MGRouteRuleStringListEditView(title: "IP", elements: Binding(get: {
+                DisclosureGroup {
+                    MGRouteRuleStringListEditView(elements: Binding(get: {
                         rule.ip ?? []
                     }, set: { newValue in
                         rule.ip = newValue.isEmpty ? nil : newValue
@@ -123,8 +123,8 @@ struct MGRouteRuleSettingView: View {
                 } label: {
                     LabeledContent("IP", value: "\(rule.ip?.count ?? 0)")
                 }
-                NavigationLink {
-                    MGRouteRuleStringListEditView(title: "Port", elements:  Binding {
+                DisclosureGroup {
+                    MGRouteRuleStringListEditView(elements:  Binding {
                         let reval = rule.port ?? ""
                         return reval.components(separatedBy: ",").filter { !$0.isEmpty }
                     } set: { newValue in
@@ -134,8 +134,8 @@ struct MGRouteRuleSettingView: View {
                 } label: {
                     LabeledContent("Port", value: rule.port ?? "")
                 }
-                NavigationLink {
-                    MGRouteRuleStringListEditView(title: "Source Port", elements:  Binding {
+                DisclosureGroup {
+                    MGRouteRuleStringListEditView(elements:  Binding {
                         let reval = rule.sourcePort ?? ""
                         return reval.components(separatedBy: ",").filter { !$0.isEmpty }
                     } set: { newValue in
@@ -234,6 +234,7 @@ struct MGRouteRuleSettingView: View {
         }
         .lineLimit(1)
         .multilineTextAlignment(.trailing)
+        .environment(\.editMode, .constant(.active))
         .navigationTitle(Text(rule.__name__))
         .navigationBarTitleDisplayMode(.large)
     }
@@ -241,49 +242,42 @@ struct MGRouteRuleSettingView: View {
 
 struct MGRouteRuleStringListEditView: View {
     
-    let title: String
     @Binding var elements: [String]
     
     @State private var value: String = ""
     
     var body: some View {
-        Form {
-            Section {
-                ForEach(elements, id: \.self) { element in
-                    Text(element)
-                }
-                .onMove { from, to in
-                    elements.move(fromOffsets: from, toOffset: to)
-                }
-                .onDelete { offseets in
-                    elements.remove(atOffsets: offseets)
-                }
-                LabeledContent {
-                    TextField("Add", text: $value)
-                        .padding(.leading, 10)
-                        .onSubmit {
-                            let reavl = value.trimmingCharacters(in: .whitespacesAndNewlines)
-                            if !reavl.isEmpty && !elements.contains(reavl) {
-                                elements.append(reavl)
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                                value = ""
-                            }
-                        }
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                        .foregroundColor(.green)
-                        .padding(.leading, 1)
-                }
-
-            } header: {
-                Text("List")
+        Group {
+            ForEach(elements, id: \.self) { element in
+                Text(element)
             }
+            .onMove { from, to in
+                elements.move(fromOffsets: from, toOffset: to)
+            }
+            .onDelete { offseets in
+                elements.remove(atOffsets: offseets)
+            }
+            
+            HStack(spacing: 18) {
+                Image(systemName: "plus.circle.fill")
+                    .resizable()
+                    .frame(width: 18, height: 18)
+                    .foregroundColor(.green)
+                    .offset(CGSize(width: -2, height: 0))
+                TextField("Add", text: $value)
+                    .onSubmit {
+                        let reavl = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !reavl.isEmpty && !elements.contains(reavl) {
+                            elements.append(reavl)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                            value = ""
+                        }
+                    }
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.trailing, 16)
         }
-        .environment(\.editMode, .constant(.active))
-        .navigationTitle(Text(title))
-        .navigationBarTitleDisplayMode(.large)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
 }
