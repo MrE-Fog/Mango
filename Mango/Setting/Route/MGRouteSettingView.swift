@@ -244,7 +244,6 @@ struct MGRouteRuleStringListEditView: View {
     let title: String
     @Binding var elements: [String]
     
-    @State private var isPresented: Bool = false
     @State private var value: String = ""
     
     var body: some View {
@@ -259,7 +258,26 @@ struct MGRouteRuleStringListEditView: View {
                 .onDelete { offseets in
                     elements.remove(atOffsets: offseets)
                 }
-                
+                LabeledContent {
+                    TextField("Add", text: $value)
+                        .padding(.leading, 10)
+                        .onSubmit {
+                            let reavl = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                            if !reavl.isEmpty && !elements.contains(reavl) {
+                                elements.append(reavl)
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                value = ""
+                            }
+                        }
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(.green)
+                        .padding(.leading, 1)
+                }
+
             } header: {
                 Text("List")
             }
@@ -267,23 +285,5 @@ struct MGRouteRuleStringListEditView: View {
         .environment(\.editMode, .constant(.active))
         .navigationTitle(Text(title))
         .navigationBarTitleDisplayMode(.large)
-        .alert("Add", isPresented: $isPresented) {
-            TextField("", text: $value)
-            Button("Done") {
-                let reavl = value.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !reavl.isEmpty && !elements.contains(reavl) {
-                    elements.append(reavl)
-                }
-                value = ""
-            }
-            Button("Cancel", role: .cancel) {}
-        }
-        .toolbar {
-            Button {
-                isPresented.toggle()
-            } label: {
-                Image(systemName: "plus")
-            }
-        }
     }
 }
